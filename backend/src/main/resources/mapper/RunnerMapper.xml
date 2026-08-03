@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runner.core.mapper.RunnerMapper">
+
+    <select id="findSocialAccount" resultType="RunnerSocialAccount">
+        SELECT
+            social_account_id AS socialAccountId,
+            runner_id         AS runnerId,
+            provider,
+            provider_user_id  AS providerUserId,
+            provider_email    AS providerEmail,
+            is_primary        AS isPrimary,
+            connected_at      AS connectedAt,
+            last_login_at     AS lastLoginAt,
+            created_at        AS createdAt,
+            updated_at        AS updatedAt
+        FROM RUNNER_SOCIAL_ACCOUNT
+        WHERE provider = #{provider}
+          AND provider_user_id = #{providerUserId}
+    </select>
+
+    <insert id="insertRunner" parameterType="Runner" useGeneratedKeys="true"
+            keyProperty="runnerId" keyColumn="runner_id">
+        INSERT INTO RUNNER(nickname, profile_image_url, created_at)
+        VALUES (#{nickname}, #{profileImageUrl}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <insert id="insertSocialAccount" parameterType="RunnerSocialAccount" useGeneratedKeys="true"
+            keyProperty="socialAccountId" keyColumn="social_account_id">
+        INSERT INTO RUNNER_SOCIAL_ACCOUNT (
+            runner_id, provider, provider_user_id, provider_email, is_primary, connected_at, last_login_at, created_at
+        ) VALUES (
+                     #{runnerId}, #{provider}, #{providerUserId}, #{providerEmail}, #{isPrimary}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                 )
+    </insert>
+
+    <select id="findRunnerById" parameterType="Long" resultType="Runner">
+        SELECT runner_id         AS runnerId,
+               nickname,
+               profile_image_url  AS profileImageUrl,
+               created_at        AS createdAt,
+               updated_at        AS updatedAt
+        FROM RUNNER
+        WHERE runner_id = #{runnerId}
+    </select>
+
+    <update id="updateLastLoginAt" parameterType="Long">
+        UPDATE RUNNER_SOCIAL_ACCOUNT
+           SET last_login_at = CURRENT_TIMESTAMP
+         WHERE social_account_at = #{socialAccountId}
+    </update>
+</mapper>

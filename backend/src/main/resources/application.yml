@@ -16,3 +16,9 @@ mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
+
+jwt:
+  # 256비트 이상의 Base64 비밀키
+  secret: c3VwZXItc2VjcmV0LWtleS1mb3ItcnVubmluZy1jb2FjaC1qd3QtdG9rZW4tZ2VuZXJhdGlvbi0yNTYtYml0cw==
+  access-token-expiration: 1800000      # Access Token 만료시간: 30분 (1,800,000 ms)
+  refresh-token-expiration: 1209600000  # Refresh Token 만료시간: 14일 (1,209,600,000 ms)
