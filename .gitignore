@@ -1,0 +1,66 @@
+# ==========================================
+# 1. OS & Office Temporary Files (임시 파일)
+# ==========================================
+.DS_Store
+Thumbs.db
+~$*.docx
+~$*.xlsx
+~$*.pptx
+*.tmp
+
+# ==========================================
+# 2. IDE / Editor Configurations (개발 툴 설정)
+# ==========================================
+.idea/
+.vscode/
+*.swp
+*.iml
+.classpath
+.project
+.settings/
+
+# ==========================================
+# 3. Java & Spring Boot Build Outputs (Core API)
+# ==========================================
+backend/build/
+backend/out/
+backend/bin/
+backend/.gradle/
+*.class
+*.jar
+*.war
+
+# ==========================================
+# 4. Python & FastAPI Artifacts (Stat API & Data)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+*.sqlite3
+
+# ==========================================
+# 5. Node.js & React Artifacts (Frontend)
+# ==========================================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# 6. Security & Sensitive Files (보안 민감 파일)
+# ==========================================
+.env
+.env.local
+application-secret.yml
+application-secret.properties
+*.pem
+*.key

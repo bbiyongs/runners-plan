@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running Coach - 대시보드</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="러닝 코치 서비스의 대시보드 화면입니다. 이번 달 러닝 거리, 목표 달성률, 운동 횟수 및 최근 운동 기록을 체계적으로 분석합니다.">
+    <meta name="keywords" content="러닝, 달리기, 마라톤, 운동 기록, 러닝 코치, 대시보드">
+    
+    <!-- Google Fonts: Inter for text, Plus Jakarta Sans for headers, JetBrains Mono for times/numbers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Modern CSS Design System & Variables */
+        :root {
+            /* Light Theme Palette */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-sidebar: #0f172a;
+            --bg-sidebar-hover: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-active: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            /* Accent Colors */
+            --primary: #4f46e5;       /* Royal Indigo */
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            --success: #10b981;       /* Emerald */
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --info: #06b6d4;          /* Cyan */
+            --info-glow: rgba(6, 182, 212, 0.15);
+            --warning: #f59e0b;       /* Amber */
+            --warning-glow: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444;        /* Rose/Red */
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            
+            /* UI Elements */
+            --border-color: #e2e8f0;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --border-radius-lg: 16px;
+            --border-radius-md: 12px;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Palette */
+            --bg-primary: #090d16;
+            --bg-secondary: #131b2e;
+            --bg-sidebar: #0b0f19;
+            --bg-sidebar-hover: #161f33;
+            --sidebar-text: #64748b;
+            --sidebar-text-active: #38bdf8;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            
+            /* Accent Colors */
+            --primary: #6366f1;       /* Violet Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --success: #34d399;       /* Bright Emerald */
+            --success-glow: rgba(52, 211, 153, 0.25);
+            --info: #22d3ee;          /* Bright Cyan */
+            --info-glow: rgba(34, 211, 238, 0.25);
+            --warning: #fbbf24;       /* Bright Amber */
+            --warning-glow: rgba(251, 191, 36, 0.25);
+            --danger: #f87171;        /* Light Rose */
+            --danger-glow: rgba(248, 113, 113, 0.25);
+            
+            /* UI Elements */
+            --border-color: #1e293b;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            --card-hover-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4), 0 12px 15px -6px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Basic Reset & Typography */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            padding: 32px 20px;
+            flex-shrink: 0;
+            z-index: 100;
+            transition: background-color var(--transition-speed);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item {
+            width: 100%;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--border-radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .menu-link svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--sidebar-text);
+            fill: none;
+            stroke-width: 2;
+            transition: stroke 0.2s ease;
+        }
+
+        .menu-link:hover {
+            background-color: var(--bg-sidebar-hover);
+            color: #ffffff;
+        }
+
+        .menu-link:hover svg {
+            stroke: #ffffff;
+        }
+
+        .menu-item.active .menu-link {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .menu-item.active .menu-link svg {
+            stroke: #ffffff;
+        }
+
+        /* Main Workspace Area */
+        main {
+            flex-grow: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: calc(100% - 260px);
+        }
+
+        /* Top Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Theme Toggle Switch */
+        .theme-toggle-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--border-color);
+        }
+
+        .theme-toggle-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Notification Icon */
+        .notification-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            position: relative;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+        }
+
+        .notification-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--border-color);
+        }
+
+        .notification-btn::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* User Profile Button */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px 6px 6px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .username {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .arrow-icon {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-left: 2px;
+        }
+
+        /* Dashboard Overview Grid (Row 1) */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .overview-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow var(--transition-speed), 
+                        background-color var(--transition-speed), 
+                        border-color var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -1px;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Progress Bar Card Specifics (Card 1) */
+        .progress-container {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+            width: 75.2%; /* Dynamic width */
+            transition: width 1s ease-out;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Circular Chart Card Specifics (Card 2 & 3) */
+        .circle-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .circular-chart {
+            width: 65px;
+            height: 65px;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: var(--bg-primary);
+            stroke-width: 3.5;
+        }
+
+        .circle {
+            fill: none;
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease-out;
+        }
+
+        /* Sparkline Card Specifics (Card 4) */
+        .sparkline-container {
+            margin-top: auto;
+            padding-top: 10px;
+            height: 50px;
+            width: 100%;
+        }
+
+        .trend-up {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Dashboard Detailed Grid (Row 2) */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.1fr;
+            gap: 24px;
+        }
+
+        .detail-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .detail-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-more {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-more:hover {
+            transform: translateX(3px);
+        }
+
+        /* Workout Table Styling */
+        .workout-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        /* Custom Scrollbar */
+        .workout-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .workout-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .workout-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        .workout-list::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .workout-row {
+            display: grid;
+            grid-template-columns: auto 1.5fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            background-color: var(--bg-primary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .workout-row:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            background-color: var(--bg-secondary);
+        }
+
+        .run-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .run-date-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .run-date {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .run-type {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* Type specific badge designs */
+        .type-lsd {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+        .type-jogging {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        .type-interval {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .type-tempo {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .run-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .run-val span {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-left: 2px;
+        }
+
+        .run-pace {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Right Panel Cards Styling */
+        .widget-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Race Card Widgets */
+        .race-card {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            color: white;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .race-card::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+        }
+
+        .race-dday {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(244, 63, 94, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .race-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .race-date {
+            font-size: 13px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .race-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 14px;
+        }
+
+        .race-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .race-info-label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .race-info-val {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* PB List Card Styling */
+        .pb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--border-radius-md);
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .pb-row:hover {
+            transform: translateX(4px);
+            border-color: var(--primary);
+        }
+
+        .pb-distance {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pb-icon-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .pb-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Footer styling */
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            aside {
+                width: 100%;
+                padding: 16px;
+            }
+            .logo-container {
+                margin-bottom: 20px;
+            }
+            main {
+                width: 100%;
+                padding: 16px;
+            }
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Layout -->
+    <aside>
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                    <path d="M22 2 12 12"></path>
+                    <path d="m14 22 8-8"></path>
+                    <path d="m2 14 8 8"></path>
+                </svg>
+            </div>
+            <span class="logo-text">Running Coach</span>
+        </div>
+
+        <nav>
+            <ul class="menu-list">
+                <li class="menu-item active" id="menu-dashboard">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        대시보드
+                    </a>
+                </li>
+                <li class="menu-item" id="menu-records">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        러닝 기록
+                    </a>
+                </li>
+                <li class="menu-item" id="menu-goals">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                        목표 관리
+                    </a>
+                </li>
+                <li class="menu-item" id="menu-races">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                            <line x1="4" y1="22" x2="4" y2="15"></line>
+                        </svg>
+                        대회 기록
+                    </a>
+                </li>
+                <li class="menu-item" id="menu-analytics">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        통계 분석
+                    </a>
+                </li>
+                <li class="menu-item" id="menu-mypage">
+                    <a href="#" class="menu-link">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        마이페이지
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+        <!-- Header Section -->
+        <header>
+            <h1 id="page-title">대시보드</h1>
+            <div class="header-actions">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="테마 전환">
+                    <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <!-- Notifications -->
+                <button class="notification-btn" id="notification-bell" aria-label="알림 확인">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </button>
+
+                <!-- User Profile -->
+                <div class="user-profile" id="user-profile-menu">
+                    <div class="avatar">RC</div>
+                    <span class="username">러너코치</span>
+                    <span class="arrow-icon">▼</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Overview Grid Row (4 Cards) -->
+        <section class="overview-grid" aria-label="운동 요약 현황">
+            <!-- Card 1: Monthly Distance -->
+            <article class="overview-card">
+                <div class="card-header">
+                    <span class="card-title">이번 달 러닝 거리</span>
+                    <div class="card-icon" style="background-color: var(--primary-glow); color: var(--primary);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 22h18"></path>
+                            <path d="M20 18v-8a2 2 0 0 0-2-2h-3"></path>
+                            <path d="M14 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"></path>
+                            <path d="M6 18V10a2 2 0 0 1 2-2h3"></path>
+                            <path d="M4 22V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v12"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-value">200 <span style="font-size: 16px; color: var(--text-secondary);">km</span></div>
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="distance-progress-bar"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>현재 150.4 km</span>
+                        <span>75%</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Card 2: Goal Achievement Rate -->
+            <article class="overview-card">
+                <div class="card-header">
+                    <span class="card-title">이번 달 목표 달성률</span>
+                    <div class="card-icon" style="background-color: var(--success-glow); color: var(--success);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="circle-chart-container">
+                    <div>
+                        <div class="card-value" style="margin-bottom: 0;">75 <span style="font-size: 16px; color: var(--text-secondary);">%</span></div>
+                        <span class="card-meta">목표 200 km</span>
+                    </div>
+                    <svg viewBox="0 0 36 36" class="circular-chart" style="color: var(--success);">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                        <path class="circle" id="achievement-circle" stroke-dasharray="0, 100" stroke="currentColor" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                    </svg>
+                </div>
+            </article>
+
+            <!-- Card 3: Workout Count -->
+            <article class="overview-card">
+                <div class="card-header">
+                    <span class="card-title">이번 달 운동 횟수</span>
+                    <div class="card-icon" style="background-color: var(--info-glow); color: var(--info);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                            <line x1="6" y1="1" x2="6" y2="4"></line>
+                            <line x1="10" y1="1" x2="10" y2="4"></line>
+                            <line x1="14" y1="1" x2="14" y2="4"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="circle-chart-container">
+                    <div>
+                        <div class="card-value" style="margin-bottom: 0;">18 <span style="font-size: 16px; color: var(--text-secondary);">회</span></div>
+                        <span class="card-meta">목표 20 회</span>
+                    </div>
+                    <svg viewBox="0 0 36 36" class="circular-chart" style="color: var(--info);">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                        <path class="circle" id="workouts-circle" stroke-dasharray="0, 100" stroke="currentColor" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                    </svg>
+                </div>
+            </article>
+
+            <!-- Card 4: Cumulative Time -->
+            <article class="overview-card">
+                <div class="card-header">
+                    <span class="card-title">이번 달 누적 시간</span>
+                    <div class="card-icon" style="background-color: var(--warning-glow); color: var(--warning);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-value" style="font-family: 'JetBrains Mono', monospace; font-size: 26px;">15:42:30</div>
+                <span class="card-meta">
+                    전달 대비 <span class="trend-up">12% ▴</span>
+                </span>
+                <!-- Sparkline Trend Chart -->
+                <div class="sparkline-container">
+                    <svg viewBox="0 0 120 30" width="100%" height="100%" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--warning)" stop-opacity="0.4"></stop>
+                                <stop offset="100%" stop-color="var(--warning)" stop-opacity="0.0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <!-- Chart Area Fill -->
+                        <path d="M 0 30 L 0 25 L 20 28 L 40 20 L 60 22 L 80 12 L 100 15 L 120 5 L 120 30 Z" fill="url(#sparkline-grad)"></path>
+                        <!-- Chart Line -->
+                        <path d="M 0 25 L 20 28 L 40 20 L 60 22 L 80 12 L 100 15 L 120 5" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <!-- Endpoint pulse dot -->
+                        <circle cx="120" cy="5" r="2.5" fill="var(--warning)"></circle>
+                    </svg>
+                </div>
+            </article>
+        </section>
+
+        <!-- Detailed Grid Row (Recent Activity & Right Widgets) -->
+        <section class="detail-grid" aria-label="상세 현황 및 대회 정보">
+            <!-- Left Side: Recent Activity -->
+            <article class="detail-card">
+                <div class="detail-header">
+                    <h2 class="detail-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        최근 운동 기록
+                    </h2>
+                    <a href="#" class="btn-more" id="btn-more-workouts">더보기 &gt;</a>
+                </div>
+
+                <div class="workout-list">
+                    <!-- Workout Row 1 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--primary-glow); color: var(--primary);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.20 (월)</span>
+                                <span class="run-type type-lsd">LSD</span>
+                            </div>
+                        </div>
+                        <div class="run-val">10.21<span>km</span></div>
+                        <div class="run-val">1:02:15</div>
+                        <div class="run-pace">6'05"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--success); font-size: 13px;">강도 3</div>
+                    </div>
+
+                    <!-- Workout Row 2 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--success-glow); color: var(--success);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.18 (토)</span>
+                                <span class="run-type type-jogging">조깅</span>
+                            </div>
+                        </div>
+                        <div class="run-val">15.02<span>km</span></div>
+                        <div class="run-val">1:33:10</div>
+                        <div class="run-pace">6'12"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--warning); font-size: 13px;">강도 4</div>
+                    </div>
+
+                    <!-- Workout Row 3 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--danger-glow); color: var(--danger);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.16 (목)</span>
+                                <span class="run-type type-interval">인터벌</span>
+                            </div>
+                        </div>
+                        <div class="run-val">8.01<span>km</span></div>
+                        <div class="run-val">0:48:20</div>
+                        <div class="run-pace">6'02"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--danger); font-size: 13px;">강도 5</div>
+                    </div>
+
+                    <!-- Workout Row 4 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--warning-glow); color: var(--warning);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.14 (화)</span>
+                                <span class="run-type type-tempo">템포</span>
+                            </div>
+                        </div>
+                        <div class="run-val">12.21<span>km</span></div>
+                        <div class="run-val">1:13:20</div>
+                        <div class="run-pace">6'00"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--warning); font-size: 13px;">강도 4</div>
+                    </div>
+
+                    <!-- Workout Row 5 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--success-glow); color: var(--success);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.12 (일)</span>
+                                <span class="run-type type-jogging">조깅</span>
+                            </div>
+                        </div>
+                        <div class="run-val">6.05<span>km</span></div>
+                        <div class="run-val">0:38:15</div>
+                        <div class="run-pace">6'19"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--success); font-size: 13px;">강도 2</div>
+                    </div>
+
+                    <!-- Workout Row 6 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--primary-glow); color: var(--primary);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.10 (금)</span>
+                                <span class="run-type type-lsd">LSD</span>
+                            </div>
+                        </div>
+                        <div class="run-val">21.10<span>km</span></div>
+                        <div class="run-val">2:09:40</div>
+                        <div class="run-pace">6'09"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--warning); font-size: 13px;">강도 4</div>
+                    </div>
+
+                    <!-- Workout Row 7 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--danger-glow); color: var(--danger);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.08 (수)</span>
+                                <span class="run-type type-interval">인터벌</span>
+                            </div>
+                        </div>
+                        <div class="run-val">5.00<span>km</span></div>
+                        <div class="run-val">0:29:10</div>
+                        <div class="run-pace">5'50"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--danger); font-size: 13px;">강도 5</div>
+                    </div>
+
+                    <!-- Workout Row 8 -->
+                    <div class="workout-row">
+                        <div style="display: flex; align-items: center;">
+                            <div class="run-badge" style="background-color: var(--success-glow); color: var(--success);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.8 6a8.8 8.8 0 0 0-12.8 0L2 10l4 4 12.8-12.8Z"></path>
+                                    <path d="m10 14-4.5 4.5"></path>
+                                    <path d="m19 5-4.5 4.5"></path>
+                                </svg>
+                            </div>
+                            <div class="run-date-info">
+                                <span class="run-date">2024.05.06 (월)</span>
+                                <span class="run-type type-jogging">조깅</span>
+                            </div>
+                        </div>
+                        <div class="run-val">10.00<span>km</span></div>
+                        <div class="run-val">1:03:00</div>
+                        <div class="run-pace">6'18"<span>/km</span></div>
+                        <div class="run-val" style="color: var(--success); font-size: 13px;">강도 3</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Right Side widgets (Upcoming Race & Personal Bests) -->
+            <div class="widget-column">
+                <!-- Upcoming Race Widget -->
+                <article class="detail-card race-card">
+                    <span class="race-dday">D-24</span>
+                    <div>
+                        <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">다가오는 레이스</span>
+                        <h3 class="race-title">2024 JTBC 서울마라톤</h3>
+                    </div>
+                    <div class="race-date">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        2024. 11. 03 (일)
+                    </div>
+                    <div class="race-info-grid">
+                        <div class="race-info-item">
+                            <span class="race-info-label">풀코스</span>
+                            <span class="race-info-val">42.195 km</span>
+                        </div>
+                        <div class="race-info-item">
+                            <span class="race-info-label">목표 기록</span>
+                            <span class="race-info-val" style="font-family: 'JetBrains Mono', monospace;">3:59:00</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Personal Bests PB Widget -->
+                <article class="detail-card">
+                    <div class="detail-header" style="margin-bottom: 16px;">
+                        <h2 class="detail-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                            현재 PB 현황
+                        </h2>
+                    </div>
+                    <div class="pb-list">
+                        <div class="pb-row">
+                            <span class="pb-distance">
+                                <span class="pb-icon-indicator" style="background-color: var(--primary);"></span>
+                                5K
+                            </span>
+                            <span class="pb-time">23:45</span>
+                        </div>
+                        <div class="pb-row">
+                            <span class="pb-distance">
+                                <span class="pb-icon-indicator" style="background-color: var(--success);"></span>
+                                10K
+                            </span>
+                            <span class="pb-time">49:12</span>
+                        </div>
+                        <div class="pb-row">
+                            <span class="pb-distance">
+                                <span class="pb-icon-indicator" style="background-color: var(--info);"></span>
+                                하프 코스
+                            </span>
+                            <span class="pb-time">1:52:30</span>
+                        </div>
+                        <div class="pb-row">
+                            <span class="pb-distance">
+                                <span class="pb-icon-indicator" style="background-color: var(--warning);"></span>
+                                풀 코스
+                            </span>
+                            <span class="pb-time">4:03:12</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            &copy; 2026 Running Coach. All rights reserved. Designed for runners.
+        </footer>
+    </main>
+
+    <!-- Interactive Logic Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Theme toggle elements
+            const themeToggleBtn = document.getElementById("theme-toggle");
+            const iconLight = document.getElementById("theme-icon-light");
+            const iconDark = document.getElementById("theme-icon-dark");
+
+            // Set default light theme
+            document.documentElement.setAttribute("data-theme", "light");
+
+            // Toggle theme handler
+            themeToggleBtn.addEventListener("click", () => {
+                const currentTheme = document.documentElement.getAttribute("data-theme");
+                if (currentTheme === "light") {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    iconLight.style.display = "none";
+                    iconDark.style.display = "block";
+                } else {
+                    document.documentElement.setAttribute("data-theme", "light");
+                    iconLight.style.display = "block";
+                    iconDark.style.display = "none";
+                }
+            });
+
+            // Animate progress indicators on load
+            setTimeout(() => {
+                // Distance Progress Bar animation
+                const distanceBar = document.getElementById("distance-progress-bar");
+                distanceBar.style.width = "75.2%";
+
+                // Achievement Circular Progress animation
+                // stroke-dasharray corresponds to percentage. Circumference of circle with r=15.9155 is exactly 100.
+                const achievementCircle = document.getElementById("achievement-circle");
+                achievementCircle.setAttribute("stroke-dasharray", "75, 100");
+
+                // Workouts Count Progress animation (90% achievement)
+                const workoutsCircle = document.getElementById("workouts-circle");
+                workoutsCircle.setAttribute("stroke-dasharray", "90, 100");
+            }, 150);
+
+            // Menu interaction
+            const menuItems = document.querySelectorAll(".menu-item");
+            const pageTitle = document.getElementById("page-title");
+            
+            menuItems.forEach(item => {
+                item.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    menuItems.forEach(i => i.classList.remove("active"));
+                    item.classList.add("active");
+                    
+                    const titleText = item.querySelector("a").textContent.trim();
+                    pageTitle.textContent = titleText;
+                });
+            });
+
+            // Interaction elements (Click handler demonstrations)
+            const notificationBell = document.getElementById("notification-bell");
+            notificationBell.addEventListener("click", () => {
+                alert("알림: 이번 주 훈련 목표인 50km 중 현재 30km를 달성하셨습니다. 목표 달성을 응원합니다!");
+            });
+
+            const workoutRows = document.querySelectorAll(".workout-row");
+            workoutRows.forEach(row => {
+                row.addEventListener("click", () => {
+                    const date = row.querySelector(".run-date").textContent;
+                    const type = row.querySelector(".run-type").textContent;
+                    const distance = row.querySelector(".run-val").textContent;
+                    alert(`러닝 상세 정보:\n날짜: ${date}\n타입: ${type}\n거리: ${distance}\n\n코치의 한마디: 일정한 페이스 유지가 훌륭했습니다!`);
+                });
+            });
+
+            const userProfile = document.getElementById("user-profile-menu");
+            userProfile.addEventListener("click", () => {
+                alert("러너코치 님, 계정 설정 페이지로 이동할 수 있습니다.");
+            });
+        });
+    </script>
+</body>
+</html>
