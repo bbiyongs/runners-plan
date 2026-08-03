@@ -2,8 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.runner.core.mapper.CodeMapper">
-    
+
     <select id="selectAllCodeGroups" resultType="com.runner.core.domain.CodeGroup">
+
         SELECT
             group_code as groupCode,
             group_name as groupName,
