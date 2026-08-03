@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: runner_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: runner_db
+      POSTGRES_USER: runner_user
+      POSTGRES_PASSWORD: runner_password
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # 최초 생성 시 산출물 DDL 스크립트를 자동 실행하여 테이블 & 초기 데이터 세팅
+      - ./산출물/PostgreSQL_DDL_Running_Coach_v1.2.sql:/docker-entrypoint-initdb.d/01_init.sql
+
+volumes:
+  postgres_data:
