@@ -3,14 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.runner.core.mapper.CodeMapper">
 
+    <sql id="codeGroupColumns">
+        group_code as groupCode,
+        group_name as groupName,
+        description,
+        use_yn as useYn,
+        created_at as createdAt,
+        updated_at as updatedAt
+    </sql>
+
     <select id="selectAllCodeGroups" resultType="com.runner.core.domain.CodeGroup">
         SELECT
-            group_code as groupCode,
-            group_name as groupName,
-            description,
-            use_yn as useYn,
-            created_at as createdAt,
-            updated_at as updatedAt
+            <include refid="codeGroupColumns"/>
         FROM CODE_GROUP
         WHERE use_yn = 'Y'
         ORDER BY group_code ASC
@@ -18,12 +22,7 @@
 
     <select id="selectCodeGroupByCode" parameterType="String" resultType="com.runner.core.domain.CodeGroup">
         SELECT
-            group_code as groupCode,
-            group_name as groupName,
-            description,
-            use_yn as useYn,
-            created_at as createdAt,
-            updated_at as updatedAt
+            <include refid="codeGroupColumns"/>
         FROM CODE_GROUP
         WHERE group_code = #{groupCode}
     </select>
