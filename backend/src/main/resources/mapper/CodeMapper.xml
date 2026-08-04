@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.runner.core.mapper.CodeMapper">
+<mapper namespace="com.runner.core.code.mapper.CodeMapper">
 
     <sql id="codeGroupColumns">
         group_code as groupCode,
@@ -12,7 +12,7 @@
         updated_at as updatedAt
     </sql>
 
-    <select id="selectAllCodeGroups" resultType="com.runner.core.domain.CodeGroup">
+    <select id="findAllCodeGroups" resultType="CodeGroup">
         SELECT
             <include refid="codeGroupColumns"/>
         FROM CODE_GROUP
@@ -20,7 +20,7 @@
         ORDER BY group_code ASC
     </select>
 
-    <select id="selectCodeGroupByCode" parameterType="String" resultType="com.runner.core.domain.CodeGroup">
+    <select id="findCodeGroupByGroupCode" parameterType="String" resultType="CodeGroup">
         SELECT
             <include refid="codeGroupColumns"/>
         FROM CODE_GROUP

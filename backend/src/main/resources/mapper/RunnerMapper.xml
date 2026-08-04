@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.runner.core.mapper.RunnerMapper">
+<mapper namespace="com.runner.core.runner.mapper.RunnerMapper">
 
     <select id="findSocialAccount" resultType="RunnerSocialAccount">
         SELECT
@@ -48,6 +48,6 @@
     <update id="updateLastLoginAt" parameterType="Long">
         UPDATE RUNNER_SOCIAL_ACCOUNT
            SET last_login_at = CURRENT_TIMESTAMP
-         WHERE social_account_at = #{socialAccountId}
+         WHERE social_account_id = #{socialAccountId}
     </update>
 </mapper>
