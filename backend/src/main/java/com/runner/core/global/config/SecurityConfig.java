@@ -1,5 +1,6 @@
 package com.runner.core.global.config;
 
+import com.runner.core.global.jwt.JwtAuthenticationFilter;
 import com.runner.core.global.oauth2.handler.OAuth2SuccessHandler;
 import com.runner.core.global.oauth2.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +22,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
@@ -32,7 +34,9 @@ public class SecurityConfig {
             .oauth2Login(oauth2->oauth2
                     .userInfoEndpoint(userInfo->userInfo.userService(customOAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
-            );
+            )
+            // JWT 인증필터를 UsernamePasswordAuthenticationFilter 앞에 등록
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

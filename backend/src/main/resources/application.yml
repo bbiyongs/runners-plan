@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: running-coach-core
+  profiles:
+    include: secret
 
   datasource:
     driver-class-name: org.postgresql.Driver
