@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runner.core.run.mapper.RunRecordMapper">
+
+    <sql id="runRecordColumns">
+        run_record_id      AS runRecordId,
+        runner_id          AS runnerId,
+        run_datetime       AS runDatetime,
+        run_date           AS runDate,
+        duration_sec       AS durationSec,
+        distance_km        AS distanceKm,
+        avg_pace_sec       AS avgPaceSec,
+        avg_hr             AS avgHr,
+        training_type_code AS trainingTypeCode,
+        rpe,
+        temperature,
+        humidity,
+        weather_code       AS weatherCode,
+        memo,
+        created_at         AS createdAt,
+        updated_at         AS updatedAt
+    </sql>
+
+    <!-- 기록 등록 -->
+    <insert id="insertRunRecord" parameterType="RunRecord" useGeneratedKeys="true" keyProperty="runRecordId"
+    keyColumn="run_record_id">
+        INSERT INTO RUN_RECORD (
+            runner_id, run_datetime, run_date, duration_sec, distance_km,
+            avg_pace_sec, avg_hr, training_type_code, rpe, temperature,
+            humidity, weather_code, memo, created_at
+        ) VALUES (
+             #{runnerId}, #{runDatetime}, #{runDate}, #{durationSec}, #{distanceKm},
+             #{avgPaceSec}, #{avgHr}, #{trainingTypeCode}, #{rpe}, #{temperature},
+             #{humidity}, #{weatherCode}, #{memo}, CURRENT_TIMESTAMP
+         )
+    </insert>
+
+    <select id="findByIdAndRunnerId" resultType="RunRecord">
+        SELECT
+            <include refid="runRecordColumns"/>
+          FROM RUN_RECORD
+        WHERE run_record_id = #{runRecordId} and runner_id = #{runnerId}
+    </select>
+
+    <select id="findByRunnerId" resultType="RunRecord">
+        select
+            <include refid="runRecordColumns"/>
+           from run_record
+          where runner_id = #{runnerId}
+        <if test="startDate != null">
+            AND run_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND run_date &lt;= #{endDate}
+        </if>
+        order by run_datetime desc
+    </select>
+
+    <update id="updateRunRecord" parameterType="RunRecord">
+        UPDATE RUN_RECORD
+        SET
+            run_datetime       = #{runDatetime},
+            run_date           = #{runDate},
+            duration_sec       = #{durationSec},
+            distance_km        = #{distanceKm},
+            avg_pace_sec       = #{avgPaceSec},
+            avg_hr             = #{avgHr},
+            training_type_code = #{trainingTypeCode},
+            rpe                = #{rpe},
+            temperature        = #{temperature},
+            humidity           = #{humidity},
+            weather_code       = #{weatherCode},
+            memo               = #{memo},
+            updated_at         = CURRENT_TIMESTAMP
+        WHERE run_record_id = #{runRecordId} AND runner_id = #{runnerId}
+    </update>
+
+    <delete id="deleteByIdAndRunnerId">
+        DELETE FROM RUN_RECORD
+        WHERE run_record_id = #{runRecordId} AND runner_id = #{runnerId}
+    </delete>
+</mapper>
