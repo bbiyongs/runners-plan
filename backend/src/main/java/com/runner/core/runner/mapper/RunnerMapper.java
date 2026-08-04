@@ -2,6 +2,7 @@ package com.runner.core.runner.mapper;
 
 import com.runner.core.runner.domain.Runner;
 import com.runner.core.runner.domain.RunnerSocialAccount;
+import com.runner.core.runner.domain.RunnerStatVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,7 @@ public interface RunnerMapper {
     Optional<Runner> findRunnerById(@Param("runnerId") Long runnerId);
 
     void updateLastLoginAt(@Param("socialAccountId") Long socialAccountId);
+
+    // 대시보드 누적 및 월간 통계 집계 조회
+    RunnerStatVo getRunnerStat(@Param("runnerId")Long runnerId);
 }

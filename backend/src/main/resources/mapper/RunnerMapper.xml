@@ -50,4 +50,27 @@
            SET last_login_at = CURRENT_TIMESTAMP
          WHERE social_account_id = #{socialAccountId}
     </update>
+
+    <!-- 통계 집계 쿼리 -->
+    <select id="getRunnerStat" parameterType="Long" resultType="RunnerStatVo">
+        SELECT
+            -- 전체 누적 통계
+            COALESCE(SUM(distance_km), 0)  as totalDistanceKm,
+            COUNT(run_record_id)  as totalRunCount,
+            COALESCE(SUM(duration_sec),0) as totalDurationSec,
+            CASE
+                WHEN SUM(distance_km) > 0
+                THEN CAST(SUM(duration_sec) /  SUM(distance_km) as INTEGER)
+                ELSE 0
+            END  as avgPaceSec,
+            -- 이번달 통계 요약
+            COALESCE(
+                    SUM(CASE WHEN DATE_TRUNC('month', run_date) = DATE_TRUNC('month', CURRENT_DATE) THEN distance_km
+                            ELSE 0 END), 0) as monthlyDistanceKm,
+                    COUNT(CASE WHEN DATE_TRUNC('month', run_date) = DATE_TRUNC('month', CURRENT_DATE) THEN run_record_id END) as monthlyRunCount,
+                    COALESCE(SUM(CASE WHEN DATE_TRUNC('month', run_date) = DATE_TRUNC('month', CURRENT_DATE) THEN duration_sec ELSE 0 END), 0) as monthlyDurationSec
+             FROM RUN_RECORD
+            WHERE runner_id = #{runnerId}
+    </select>
+
 </mapper>
