@@ -14,8 +14,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # 최초 생성 시 산출물 DDL 스크립트를 자동 실행하여 테이블 & 초기 데이터 세팅
-      - ./산출물/PostgreSQL_DDL_Running_Coach_v1.2.sql:/docker-entrypoint-initdb.d/01_init.sql
+      # 최초 생성 시 산출물 v2.0 DDL 스크립트를 자동 실행하여 테이블 & 초기 데이터 세팅
+      - ./산출물/PostgreSQL_DDL_Running_Coach_v2.0.sql:/docker-entrypoint-initdb.d/01_init.sql
 
 volumes:
   postgres_data:
