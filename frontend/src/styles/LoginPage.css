@@ -1,0 +1,108 @@
+/* src/styles/LoginPage.css */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 12px;
+  color: var(--text-primary);
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.social-login-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: var(--border-radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.google-btn {
+  background-color: #ffffff;
+  color: #3c4043;
+}
+
+.google-btn:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.naver-btn {
+  background-color: #03c75a;
+  color: #ffffff;
+  border: none;
+}
+
+.naver-btn:hover {
+  background-color: #02b351;
+}
+
+.naver-icon {
+  font-weight: 900;
+  font-size: 16px;
+  font-family: sans-serif;
+}
+
+/* src/styles/LoginPage.css 수정 부분 */
+.naver-img-btn-wrapper {
+  width: 100%;
+  height: 56px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+.naver-img-btn-wrapper:hover {
+  opacity: 0.9;
+}
+.naver-img-btn-wrapper:active {
+  transform: scale(0.99);
+}
+.naver-img-btn {
+  width: 100%;
+  height: 100%; /* 구글 버튼 높이와 동일하게 맞춤 */
+  object-fit: contain;
+  border-radius: var(--border-radius-md);
+}
