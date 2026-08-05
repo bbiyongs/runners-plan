@@ -211,3 +211,39 @@
   background-color: var(--bg-secondary);
   color: var(--text-primary);
 }
+
+/* src/styles/RunsPage.css 하단 추가 */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.all-loaded-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px;
+}

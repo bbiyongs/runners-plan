@@ -39,10 +39,20 @@ export const runApi = {
     // 기록 삭제
     deleteRunRecord: async(runRecordId) => {
         try {
-            const response = axiosInstance.delete(`/v1/runs/${runRecordId}`);
+            const response = await axiosInstance.delete(`/v1/runs/${runRecordId}`);
         } catch(error) {
             console.error("기록 삭제 실패 : " , error);
             throw error;
         }
     },
+    // 러닝 기록 수정
+    updateRunRecord: async (runRecordId, runData) => {
+        try{
+            const response = await axiosInstance.put(`/v1/runs/${runRecordId}` , runData);
+            return response.data.data;
+        } catch (error) {
+            console.error('기록 수정 실패 : ', error );
+            throw error;
+        }
+    }, 
 }
