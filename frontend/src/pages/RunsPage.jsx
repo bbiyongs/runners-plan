@@ -1,8 +1,9 @@
 // src/pages/RunsPage.jsx
 import React from 'react';
-import { Plus, Trash2, Filter, Heart } from 'lucide-react';
+import { Plus, Trash2, Filter, Heart, Eye, ChevronDown } from 'lucide-react';
 import Sidebar from '../components/layout/Sidebar';
 import RunCreateModal from '../components/dashboard/RunCreateModal';
+import RunDetailModal from '../components/dashboard/RunDetailModal';
 import { useRuns } from '../hooks/useRuns';
 import { formatDuration, getRpeLabel } from '../utils/formatters';
 import '../styles/RunsPage.css';
@@ -11,12 +12,21 @@ export default function RunsPage() {
   // 💡 비즈니스 로직은 custom hook 하나로 깔끔하게 호출!
   const {
     runs,
+    totalCount,
+    visibleCount,
+    hasMore,
+    handleLoadMore,
     loading,
     filter,
     isModalOpen,
     setIsModalOpen,
+    selectedRun,
+    isDetailOpen,
+    setIsDetailOpen,
+    openDetail,
     handleFilterChange,
     createRun,
+    updateRun,
     deleteRun,
   } = useRuns();
 
@@ -50,6 +60,7 @@ export default function RunsPage() {
         {loading ? (
           <div style={{ padding: '20px' }}>기록 목록을 불러오는 중입니다...</div>
         ) : (
+          <>
           <div className="runs-table-card">
             <table className="runs-table">
               <thead>
@@ -74,12 +85,12 @@ export default function RunsPage() {
                   </tr>
                 ) : (
                   runs.map((run) => (
-                    <tr key={run.runRecordId}>
-                      <td>{run.runDate}</td>
-                      <td><strong>{run.distanceKm} km</strong></td>
-                      <td>{formatDuration(run.durationSec)}</td>
-                      <td>{run.formattedPace || '-'}</td>
-                      <td>
+                    <tr key={run.runRecordId} style={{ cursor: 'pointer' }}>
+                      <td onClick={() => openDetail(run.runRecordId)}>{run.runDate}</td>
+                      <td onClick={() => openDetail(run.runRecordId)}><strong>{run.distanceKm} km</strong></td>
+                      <td onClick={() => openDetail(run.runRecordId)}>{formatDuration(run.durationSec)}</td>
+                      <td onClick={() => openDetail(run.runRecordId)}>{run.formattedPace || '-'}</td>
+                      <td onClick={() => openDetail(run.runRecordId)}>
                         {run.avgHr ? (
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--danger)', fontWeight: '600' }}>
                             <Heart size={14} fill="var(--danger)" /> {run.avgHr} bpm
@@ -88,13 +99,18 @@ export default function RunsPage() {
                           '-'
                         )}
                       </td>
-                      <td><span className="badge-training">{run.trainingTypeCode}</span></td>
-                      <td>{getRpeLabel(run.rpe)}</td>
-                      <td>{run.memo || '-'}</td>
+                      <td onClick={() => openDetail(run.runRecordId)}><span className="badge-training">{run.trainingTypeCode}</span></td>
+                      <td onClick={() => openDetail(run.runRecordId)}>{getRpeLabel(run.rpe)}</td>
+                      <td onClick={() => openDetail(run.runRecordId)}>{run.memo || '-'}</td>
                       <td>
-                        <button className="delete-icon-btn" onClick={() => deleteRun(run.runRecordId)}>
-                          <Trash2 size={16} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button className="delete-icon-btn" onClick={() => openDetail(run.runRecordId)} style={{ color: 'var(--primary)' }}>
+                            <Eye size={16} />
+                          </button>
+                          <button className="delete-icon-btn" onClick={(e) => { e.stopPropagation(); deleteRun(run.runRecordId); }}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -102,6 +118,20 @@ export default function RunsPage() {
               </tbody>
             </table>
           </div>
+
+          {totalCount > 0 && (
+            <div className='load-more-container'>
+              {hasMore? (
+                <button className='load-more-btn' onClick={handleLoadMore}>
+                  <ChevronDown size={18} />
+                  더보기 ({Math.min(visibleCount, totalCount)}/{totalCount})
+                </button>
+              ): (
+                <span className='all-loaded-text'>모든 기록을 불러왔습니다. (총 {totalCount}개)</span>
+              )}
+            </div>
+          )}
+          </>
         )}
 
         {/* 분리된 모달 컴포넌트 */}
@@ -109,6 +139,13 @@ export default function RunsPage() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSubmit={createRun}
+        />
+
+        <RunDetailModal
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          runRecord={selectedRun}
+          onUpdate={updateRun}
         />
       </main>
     </div>
