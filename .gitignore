@@ -66,8 +66,9 @@ application-secret.properties
 *.key
 
 # ==========================================
-# 7. Local Personal Guides (개인 가이드)
+# 7. Local Personal Guides & Daily Logs (개인 가이드 및 작업 일지)
 # ==========================================
 가이드/
+logs/
 
 gemini_work/
