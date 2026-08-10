@@ -88,6 +88,9 @@ export function useRuns() {
             avgHr: formData.avgHr ? parseInt(formData.avgHr, 10) : null,
             trainingTypeCode: formData.trainingTypeCode,
             rpe: parseInt(formData.rpe, 10),
+            temperature: formData.temperature !== '' ? parseFloat(formData.temperature) : null,
+            humidity: formData.humidity !== '' ? parseInt(formData.humidity, 10) : null,
+            wetherCode: formData.wetherCode || 'SUNNY',
             memo: formData.memo,
         };
 
@@ -111,6 +114,9 @@ export function useRuns() {
                 avgHr: formData.avgHr? parseInt(formData.avgHr, 10) : null,
                 trainingTypeCode : formData.trainingTypeCode,
                 rpe: parseInt(formData.rpe, 10),
+                temperature: formData.temperature !== ''? parseFloat(formData.temperature): null, 
+                humidity: formData.humidity !== ''? parseInt(formData.humidity, 10) : null,
+                weatherCode : formData.weatherCode || 'SUNNY',
                 memo:formData.memo, 
             }
 

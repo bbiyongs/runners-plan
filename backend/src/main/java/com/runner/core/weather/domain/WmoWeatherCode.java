@@ -16,8 +16,15 @@ public enum WmoWeatherCode {
         this.code = code;
         this.wmoCodes = wmoCodes;
     }
+<<<<<<< Updated upstream
     public static String toServiceWeatherCode(Integer wmoCode) {
         if (wmoCode == null) return SUNNY.getCode();
+=======
+
+    public static String toServiceWeatherCode(Integer wmoCode) {
+        if (wmoCode == null) return SUNNY.getCode();
+
+>>>>>>> Stashed changes
         for (WmoWeatherCode item : values()) {
             for (int codeVal : item.getWmoCodes()) {
                 if (codeVal == wmoCode) {

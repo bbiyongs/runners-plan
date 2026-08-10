@@ -8,9 +8,14 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
+<<<<<<< Updated upstream
 @ConfigurationProperties(prefix="weather-service")
+=======
+@ConfigurationProperties(prefix = "weather-service")
+>>>>>>> Stashed changes
 public class WeatherProperties {
-    private Api api =  new Api();
+
+    private Api api = new Api();
     private DefaultLocation defaultConfig = new DefaultLocation();
     private Fallback fallback = new Fallback();
 
