@@ -1,12 +1,17 @@
 // src/components/dashboard/RunCreateModal.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { weatherApi } from '../../api/weatherApi';
 
 export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
     const todayStr = new Date().toISOString().split('T')[0];
 
+    const [locations, setLocations] = useState([]);
+    const [weatherLoading, setWeatherLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         runDate: todayStr,
         runTime: '07:00',
+        location: '서울/수도권 북부',
         distanceKm: '',
         hours: '0',
         minutes: '30',
@@ -14,14 +19,54 @@ export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
         avgHr: '',
         trainingTypeCode: 'EASY',
         rpe: '3',
+        temperature:'',
+        humidity:'',
+        weatherCode:'SUNNY',
         memo: '',
     });
+
+    // 모달 오픈시 db 지역목록 가져오기
+    useEffect(()=> {
+        if(isOpen) {
+            weatherApi.getLocationList().then((list)=> {
+                if(list && list.length > 0) {
+                    setLocations(list);
+                    fetchWeather(list[0], formData.runDate, formData.runTime);
+                }
+            });
+        }
+    }, [isOpen]);
+
+    // 날씨 자동 조회
+    const fetchWeather = async(loc, date, time) => {
+        setWeatherLoading(true);
+        const data = await weatherApi.lookupWeather(loc, date, time);
+        if(data) {
+            setFormData((prev)=> ({
+                ...prev,
+                temperature: data.temperature ?? '',
+                humidity: data.humidity ?? '',
+                weatherCode: data.weatherCode ?? 'SUNNY'
+            }));
+        }
+        setWeatherLoading(false);
+    }
 
     if (!isOpen) return null;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const next = { ...prev, [name]: value };
+            if(name==='location' || name==='runDate' || name==='runTime') {
+                fetchWeather(
+                    name === 'location' ? value: next.location,
+                    name === 'runDate'  ? value: next.runDate,
+                    name === 'runTime' ? value : next.runTime
+                );
+            }
+            return next;
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -57,6 +102,32 @@ export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
                             <label className="input-label">러닝 일자</label>
                             <input type="date" name="runDate" className="modal-input" value={formData.runDate} onChange={handleChange} required />
                         </div>
+
+                        {/* 💡 DB 연동 지역 선택 드롭다운 */}
+                        <div className="input-group">
+                            <label className="input-label">러닝 지역</label>
+                            <select name="location" className="modal-input" value={formData.location} onChange={handleChange}>
+                                {locations.map((loc) => (
+                                    <option key={loc} value={loc}>{loc}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 💡 날씨 정보 (자동 세팅 + 수동 편집 가능) */}
+                        <div className="input-group">
+                            <label className="input-label">날씨 상태 {weatherLoading && '(조회 중...)'}</label>
+                            <div className='weather-input-row'>
+                                <select name="weatherCode" className="modal-input" value={formData.weatherCode} onChange={handleChange}>
+                                    <option value="SUNNY">☀️ 맑음</option>
+                                    <option value="CLOUDY">☁️ 흐림</option>
+                                    <option value="RAIN">🌧️ 비</option>
+                                    <option value="SNOW">❄️ 눈</option>
+                                </select>
+                                <input type="number" step="0.1" name="temperature" placeholder="기온(°C)" className="modal-input" value={formData.temperature} onChange={handleChange} style={{ width: '90px' }} />
+                                <input type="number" name="humidity" placeholder="습도(%)" className="modal-input" value={formData.humidity} onChange={handleChange} style={{ width: '80px' }} />
+                            </div>
+                        </div>
+
 
                         <div className="input-group">
                             <label className="input-label">시작 시간</label>

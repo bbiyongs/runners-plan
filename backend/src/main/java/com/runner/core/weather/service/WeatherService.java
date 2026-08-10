@@ -32,7 +32,10 @@ public class WeatherService {
     }
 
     public WeatherLookupResponseDto getWeatherByLocationAndDateTime(String locationName, String dateStr, String timeStr) {
+<<<<<<< Updated upstream
         // db 선택된 지역 좌표
+=======
+>>>>>>> Stashed changes
         List<CodeDetail> details = codeMapper.findCodeDetailsByGroupCode(weatherProps.getDefaultConfig().getLocationGroup());
         Double lat = weatherProps.getDefaultConfig().getLat();
         Double lon = weatherProps.getDefaultConfig().getLon();
@@ -45,24 +48,37 @@ public class WeatherService {
                     try {
                         lat = Double.parseDouble(coords[0].trim());
                         lon = Double.parseDouble(coords[1].trim());
+<<<<<<< Updated upstream
                     } catch (Exception ignored) {
                     }
+=======
+                    } catch (Exception ignored) {}
+>>>>>>> Stashed changes
                 }
                 break;
             }
         }
 
+<<<<<<< Updated upstream
         // 날짜 시간 파라미터 처리
+=======
+>>>>>>> Stashed changes
         String targetDate = (dateStr != null && !dateStr.isBlank()) ? dateStr : LocalDate.now().toString();
         int targetHour = weatherProps.getDefaultConfig().getHour();
         if (timeStr != null && timeStr.contains(":")) {
             try {
                 targetHour = Integer.parseInt(timeStr.split(":")[0].trim());
+<<<<<<< Updated upstream
             } catch (Exception ignored) {
             }
         }
 
         // opne metro 통합 날씨 API 호출
+=======
+            } catch (Exception ignored) {}
+        }
+
+>>>>>>> Stashed changes
         try {
             String url = weatherProps.getApi().getUrl() +
                     "?latitude={lat}&longitude={lon}&start_date={date}&end_date={date}&hourly=temperature_2m,relative_humidity_2m,weather_code&timezone={tz}";
@@ -77,7 +93,11 @@ public class WeatherService {
             return parseOpenMeteoResponse(response, targetHour, targetName);
 
         } catch (Exception e) {
+<<<<<<< Updated upstream
             log.error("open-metro api 호출 예외 {}", e.getMessage());
+=======
+            log.error("Open-Meteo 날씨 API 호출 예외 (Fallback 적용): {}", e.getMessage());
+>>>>>>> Stashed changes
             return WeatherLookupResponseDto.builder()
                     .temperature(weatherProps.getFallback().getTemperature())
                     .humidity(weatherProps.getFallback().getHumidity())
@@ -102,14 +122,20 @@ public class WeatherService {
         List<Integer> hums = (List<Integer>) hourly.get("relative_humidity_2m");
         List<Integer> weatherCodes = (List<Integer>) hourly.get("weather_code");
 
+<<<<<<< Updated upstream
         // targetHour 범위 제한
+=======
+>>>>>>> Stashed changes
         int index = Math.min(Math.max(targetHour, 0), 23);
 
         Double temp = (temps != null && temps.size() > index) ? temps.get(index) : weatherProps.getFallback().getTemperature();
         Integer humidity = (hums != null && hums.size() > index) ? hums.get(index) : weatherProps.getFallback().getHumidity();
         Integer wCode = (weatherCodes != null && weatherCodes.size() > index) ? weatherCodes.get(index) : 0;
 
+<<<<<<< Updated upstream
         // WMO 날씨 코드 -> 서비스 매핑 (SUNNY, CLOUDY, RAIN, SNOW)
+=======
+>>>>>>> Stashed changes
         String mappedWeatherCode = WmoWeatherCode.toServiceWeatherCode(wCode);
 
         return WeatherLookupResponseDto.builder()
