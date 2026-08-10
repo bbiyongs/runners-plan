@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { weatherApi } from "../../api/weatherApi";
 
 export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate }) {
+    const [locations, setLocations] = useState([]);
+    const [weatherLoading, setWeatherLoading] = useState(false);
+
+
     const [formData, setFormData] = useState({
         runDate: '',
         runTime: '07:00',
+        location: '서울/수도권 북부',
         distanceKm: '',
         hours: '0',
         minutes: '0',
@@ -11,8 +17,20 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
         avgHr: '',
         trainingTypeCode: 'EASY',
         rpe: '3',
+        temperature:'',
+        humidity: '',
+        weatherCode: 'SUNNY',
         memo: '',
     });
+
+    // 1. 모달 오픈 시 DB 지역 목록 가져오기
+    useEffect(() => {
+        if (isOpen) {
+            weatherApi.getLocationList().then((list) => {
+                if (list && list.length > 0) setLocations(list);
+            });
+        }
+    }, [isOpen]);
 
     // 기록 데이터가 바뀔때마다 폼에 채워넣음
     useEffect(() => {
@@ -29,6 +47,7 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
             setFormData({
                 runDate: dateStr,
                 runTime: timeStr,
+                location : runRecord.location || '서울/수도권 북부',
                 distanceKm: runRecord.distanceKm || '',
                 hours: String(hrs),
                 minutes: String(mins),
@@ -36,16 +55,44 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
                 avgHr: runRecord.avgHr ? String(runRecord.avgHr) : '',
                 trainingTypeCode: runRecord.trainingTypeCode || 'EASY',
                 rpe: runRecord.rpe ? String(runRecord.rpe) : '3',
+                temperature : runRecord.temperature ?? '',
+                humidity : runRecord.humidity ?? '',
+                weatherCode : runRecord.weatherCode ?? 'SUNNY',
                 memo: runRecord.memo || '',
             });
         }
     }, [runRecord]);
 
+    const fetchWeather = async (loc, date, time) => {
+        setWeatherLoading(true);
+        const data = await weatherApi.lookupWeather(loc, date, time);
+        if(data) {
+            setFormData((prev)=> ({
+                ...prev,
+                temperature: data.temperature ?? '',
+                humidity: data.humidity ?? '',
+                weatherCode: data.weatherCode ?? 'SUNNY'
+            }));
+        }
+        setWeatherLoading(false);
+    }
+
     if (!isOpen || !runRecord) return null;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const next = { ...prev, [name]: value };
+            // 지역, 날짜, 시간 변경 시 날씨 자동 업데이트
+            if (name === 'location' || name === 'runDate' || name === 'runTime') {
+                fetchWeather(
+                    name === 'location' ? value : next.location,
+                    name === 'runDate' ? value : next.runDate,
+                    name === 'runTime' ? value : next.runTime
+                );
+            }
+            return next;
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -70,6 +117,31 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
                             <label className="input-label">시작 시간</label>
                             <input type="time" name="runTime" className="modal-input" value={formData.runTime} onChange={handleChange} required />
                         </div>
+
+                        {/* 💡 지역 선택 */}
+                        <div className="input-group">
+                            <label className="input-label">러닝 지역</label>
+                            <select name="location" className="modal-input" value={formData.location} onChange={handleChange}>
+                                {locations.map((loc) => (
+                                    <option key={loc} value={loc}>{loc}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* 💡 날씨 상태 및 기온/습도 */}
+                        <div className="input-group">
+                            <label className="input-label">날씨 상태 {weatherLoading && '(조회 중...)'}</label>
+                            <div className="weather-input-row">
+                                <select name="weatherCode" className="modal-input" value={formData.weatherCode} onChange={handleChange}>
+                                    <option value="SUNNY">☀️ 맑음</option>
+                                    <option value="CLOUDY">☁️ 흐림</option>
+                                    <option value="RAIN">🌧️ 비</option>
+                                    <option value="SNOW">❄️ 눈</option>
+                                </select>
+                                <input type="number" step="0.1" name="temperature" placeholder="기온(°C)" className="modal-input" value={formData.temperature} onChange={handleChange} />
+                                <input type="number" name="humidity" placeholder="습도(%)" className="modal-input" value={formData.humidity} onChange={handleChange} />
+                            </div>
+                        </div>
+
                         <div className="input-group">
                             <label className="input-label">러닝 거리 (km)</label>
                             <input type="number" step="0.01" name="distanceKm" className="modal-input" value={formData.distanceKm} onChange={handleChange} required />
