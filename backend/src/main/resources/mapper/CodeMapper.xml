@@ -27,4 +27,20 @@
         WHERE group_code = #{groupCode}
     </select>
 
+    <select id="findCodeDetailsByGroupCode" parameterType="String" resultType="CodeDetail">
+        SELECT
+            code_id as codeId,
+            group_code as groupCode,
+            code_value as codeValue,
+            code_name as codeName,
+            description,
+            sort_order as sortOrder,
+            use_yn as useYn,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM CODE_DETAIL
+        WHERE group_code = #{groupCode} AND use_yn = 'Y'
+        ORDER BY sort_order ASC
+    </select>
+
 </mapper>

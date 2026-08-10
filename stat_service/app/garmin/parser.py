@@ -22,6 +22,11 @@ class RunningActivityDTO:
     rpe: Optional[int] = None
     aerobic_effect: Optional[float] = None        # 유산소 훈련 효과 (0.0~5.0)
     anaerobic_effect: Optional[float] = None      # 무산소 훈련 효과 (0.0~5.0)
+    # 기상 관련 필드 추가
+    temperature: Optional[float] = None
+    humidity: Optional[int] = None
+    weather_code: Optional[str] = None
+
 
 class GarminDataParser:
     """ 가민 raw json 데이터를 서비스 모델로 파싱 """
@@ -56,6 +61,23 @@ class GarminDataParser:
             pace_rem_sec = avg_pace_sec % 60
             avg_pace_str = f"{pace_min}'{pace_rem_sec:02d}\""
 
+        temp = raw.get("temperature") # 기온
+        hum = raw.get("relativeHumidity") # 습도
+
+        garmin_w_type = raw.get("weatherTypeDTO", {}).get("weatherTypeKey", "")
+        weather_code = None
+
+        if garmin_w_type:
+            w_key = garmin_w_type.upper()
+            if any(k in w_key for k in ["RAIN", "SHOWER", "THUNDER"]):
+                weather_code = "RAIN"
+            elif any(k in w_key for k in ["SNOW", "ICE", "FREEZING"]):
+                weather_code = "SNOW"
+            elif any(k in w_key for k in ["CLOUD", "OVERCAST", "FOG"]):
+                weather_code = "CLOUDY"
+            elif any(k in w_key for k in ["CLEAR", "SUN"]):
+                weather_code = "SUNNY"
+
         return RunningActivityDTO (
             activity_id=activity_id,
             name=name,
@@ -71,7 +93,11 @@ class GarminDataParser:
             # 추가 파싱
             rpe=raw.get("perceivedExertion"),
             aerobic_effect=raw.get("aerobicTrainingEffect"),
-            anaerobic_effect=raw.get("anaerobicTrainingEffect")
+            anaerobic_effect=raw.get("anaerobicTrainingEffect"),
+            # 기상데이터
+            temperature=temp,
+            humidity=hum,
+            weather_code=weather_code
         )
     @classmethod
     def parse_activities_list(cls, raw_list: List[Dict[str, Any]]) -> List[RunningActivityDTO]:

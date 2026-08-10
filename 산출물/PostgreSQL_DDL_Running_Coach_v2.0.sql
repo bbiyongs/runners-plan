@@ -222,6 +222,9 @@ VALUES ('WEATHER_TYPE', '날씨 상태', '기상 상태 코드 그룹', 'Y');
 INSERT INTO CODE_GROUP (group_code, group_name, description, use_yn) 
 VALUES ('RUNNING_LEVEL', '러닝 레벨', '누적 거리에 따른 캐릭터 등급 구분 코드 그룹', 'Y');
 
+INSERT INTO CODE_GROUP (group_code, group_name, description, use_yn) 
+VALUES ('RUNNING_LOCATION', '러닝 지역 권역', '수동 입력용 대표 러닝 지역 좌표 그룹', 'Y');
+
 -- TRAINING_TYPE 상세
 INSERT INTO CODE_DETAIL (group_code, code_value, code_name, description, sort_order, use_yn)
 VALUES 
@@ -249,6 +252,20 @@ VALUES
 ('RUNNING_LEVEL', 'LV_DEER', '사슴 러너', '누적 거리 100km~300km', 2, 'Y'),
 ('RUNNING_LEVEL', 'LV_WOLF', '늑대 러너', '누적 거리 300km~600km', 3, 'Y'),
 ('RUNNING_LEVEL', 'LV_CHEETAH', '치타 러너', '누적 거리 600km 이상', 4, 'Y');
+
+-- RUNNING_LOCATION 상세 (10대 대표 권역 - description에 위도,경도 지정)
+INSERT INTO CODE_DETAIL (group_code, code_value, code_name, description, sort_order, use_yn)
+VALUES 
+('RUNNING_LOCATION', 'SEOUL_METRO', '서울/수도권 북부', '37.5665,126.9780', 1, 'Y'),
+('RUNNING_LOCATION', 'GYEONGGI_SOUTH', '수도권 남부 (성남/수원/용인)', '37.3827,127.1189', 2, 'Y'),
+('RUNNING_LOCATION', 'INCHEON_WEST', '인천/수도권 서부', '37.4563,126.7052', 3, 'Y'),
+('RUNNING_LOCATION', 'GANGWON', '강원권 (춘천/원주/강릉)', '37.7519,128.8761', 4, 'Y'),
+('RUNNING_LOCATION', 'CHUNGCHEONG', '대전/충청권', '36.3504,127.3845', 5, 'Y'),
+('RUNNING_LOCATION', 'GYEONGBUK', '대구/경북권', '35.8714,128.6014', 6, 'Y'),
+('RUNNING_LOCATION', 'GYEONGNAM', '부산/울산/경남권', '35.1796,129.0756', 7, 'Y'),
+('RUNNING_LOCATION', 'JEONLA', '광주/전라권', '35.1595,126.8526', 8, 'Y'),
+('RUNNING_LOCATION', 'JEJU', '제주도', '33.4996,126.5312', 9, 'Y'),
+('RUNNING_LOCATION', 'OTHER', '해외/기타', '37.5665,126.9780', 10, 'Y');
 
 COMMIT;
 
