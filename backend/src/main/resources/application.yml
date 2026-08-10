@@ -5,7 +5,7 @@ spring:
   application:
     name: running-coach-core
   profiles:
-    include: secret
+    include: secret, weather
 
   datasource:
     driver-class-name: org.postgresql.Driver

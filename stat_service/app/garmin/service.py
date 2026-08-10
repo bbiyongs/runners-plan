@@ -99,6 +99,10 @@ class GarminSyncService:
             avg_hr=run_dto.average_hr,
             training_type_code=training_code,
             rpe=run_dto.rpe,
+            # 날씨 데이터 적용
+            temperature=run_dto.temperature,
+            humidity=run_dto.humidity,
+            wether_code=run_dto.weather_code,
             memo=manual_memo or f"Garmin 연동 ({run_dto.name})"
         )
         self.db.add(new_record)

@@ -33,7 +33,7 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth->
-                    auth.requestMatchers("/health", "/login/oauth2/**", "/oauth2/**", "/api/v1/auth/**").permitAll()
+                    auth.requestMatchers("/health", "/login/oauth2/**", "/oauth2/**", "/api/v1/auth/**", "/api/v1/weather/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2Login(oauth2->oauth2
