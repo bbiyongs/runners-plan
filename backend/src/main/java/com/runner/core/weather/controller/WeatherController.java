@@ -1,6 +1,5 @@
 package com.runner.core.weather.controller;
 
-import com.runner.core.weather.domain.RunningLocation;
 import com.runner.core.weather.dto.WeatherLookupResponseDto;
 import com.runner.core.weather.service.WeatherService;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/weather")
