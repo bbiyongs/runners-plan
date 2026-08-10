@@ -37,7 +37,7 @@ export default function RunsPage() {
       <main className="main-content">
         <header className="runs-header">
           <div>
-            <h1 className="dashboard-title">러닝 기록</h1>
+            <h1 className="dashboard-title">러닝 기록!</h1>
             <p className="dashboard-subtitle">나의 러닝 활동 기록을 체계적으로 관리합니다</p>
           </div>
           <button className="add-run-btn" onClick={() => setIsModalOpen(true)}>
