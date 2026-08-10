@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix="openweather")
+@ConfigurationProperties(prefix="weather-service")
 public class WeatherProperties {
     private Api api =  new Api();
     private DefaultLocation defaultConfig = new DefaultLocation();
@@ -16,8 +16,8 @@ public class WeatherProperties {
 
     @Getter @Setter
     public static class Api {
-        private String key = "sample_key";
-        private String url = "https://api.openweathermap.org/data/2.5/weather";
+        private String url = "https://api.open-meteo.com/v1/forecast";
+        private String timezone = "Asia/Seoul";
     }
 
     @Getter @Setter
@@ -26,6 +26,7 @@ public class WeatherProperties {
         private String locationName = "서울/수도권 북부";
         private Double lat = 37.5665;
         private Double lon = 126.9780;
+        private Integer hour = 12;
     }
 
     @Getter @Setter
