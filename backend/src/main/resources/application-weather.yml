@@ -7,11 +7,7 @@ weather-service:
     location-name: 서울/수도권 북부
     lat: 37.5665
     lon: 126.9780
-<<<<<<< Updated upstream
-    hour: 12 # 💡 기본 시간 (12시) 설정화
-=======
     hour: 12
->>>>>>> Stashed changes
   fallback:
     temperature: 22.5
     humidity: 60

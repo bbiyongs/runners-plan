@@ -85,11 +85,7 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
             const next = { ...prev, [name]: value };
             // 지역, 날짜, 시간 변경 시 날씨 자동 업데이트
             if (name === 'location' || name === 'runDate' || name === 'runTime') {
-                fetchWeather(
-                    name === 'location' ? value : next.location,
-                    name === 'runDate' ? value : next.runDate,
-                    name === 'runTime' ? value : next.runTime
-                );
+                fetchWeather(next.location, next.runDate, next.runTime);
             }
             return next;
         });

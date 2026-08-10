@@ -13,11 +13,11 @@ export const weatherApi = {
     },
 
     // 선택 지역,날짜,시간 기반 날씨 조회
-    lookupWeather : async (location, data, time) => {
+    lookupWeather : async (location, date, time) => {
         try{
 
             const response = await axiosInstance.get("/v1/weather/lookup", {
-                params: {location, data, time}
+                params: {location, date, time}
             });
             return response.data;
         } catch (error) {
