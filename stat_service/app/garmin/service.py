@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.garmin.client import GarminService
 from app.garmin.parser import GarminDataParser, RunningActivityDTO
 from app.db_models.garmin_models import GarminAccountLink, GarminRunDetail, GarminRunLap
+from app.garmin.weather_fetcher import WeatherFetcher
 from app.db_models.run_models import RunRecord
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ class GarminSyncService:
         self.db.refresh(link)
         return link
 
-    def save_running_activity(self, runner_id: int, run_dto: RunningActivityDTO, client) -> Optional[RunRecord]:
+    def save_running_activity(self, runner_id: int, run_dto: RunningActivityDTO, weather_map: dict = None) -> Optional[RunRecord]:
         """
         단일 러닝 활동을 DB에 저장합니다.
         - 동일 날짜 수동 등록 기록 존재 시 삭제 및 메모 승계 후 가민 기록으로 대체
@@ -81,14 +82,27 @@ class GarminSyncService:
         training_code = "EASY"
         if anaerobic_eff >= 2.5:
             training_code = "INTERVAL"
-        elif aerobic_eff >= 4.0:
-            training_code = "TEMPO"
         elif run_dto.distance_km >= 15.0:
             training_code = "LSD"
+        elif aerobic_eff >= 4.0:
+            training_code = "TEMPO"
         elif aerobic_eff < 2.0 and aerobic_eff > 0:
             training_code = "RECOVERY"
-            
-        # RunRecord 저장
+
+        # 2. 날씨 데이터 완성 (WeatherFetcher 맵 활용)
+        final_temp = run_dto.temperature
+        final_hum = run_dto.humidity
+        final_weather_code = run_dto.weather_code
+
+        if weather_map:
+            hour_key = run_dto.start_time[:13]
+            if hour_key in weather_map:
+                o_temp, o_hum, o_weather_code = weather_map[hour_key]
+                if final_temp is None: final_temp = o_temp
+                if final_hum is None: final_hum = o_hum
+                if final_weather_code is None: final_weather_code = o_weather_code
+
+        # 3. RunRecord 저장
         new_record = RunRecord(
             runner_id=runner_id,
             run_datetime=run_dt,
@@ -99,10 +113,9 @@ class GarminSyncService:
             avg_hr=run_dto.average_hr,
             training_type_code=training_code,
             rpe=run_dto.rpe,
-            # 날씨 데이터 적용
-            temperature=run_dto.temperature,
-            humidity=run_dto.humidity,
-            wether_code=run_dto.weather_code,
+            temperature=final_temp,
+            humidity=final_hum,
+            weather_code=final_weather_code or "SUNNY",
             memo=manual_memo or f"Garmin 연동 ({run_dto.name})"
         )
         self.db.add(new_record)
@@ -116,31 +129,6 @@ class GarminSyncService:
             calories=run_dto.calories
         )
         self.db.add(detail)
-
-        # Garmin_run_lap 저장
-        try :
-            splits = client.get_activity_splits(run_dto.activity_id)
-            lap_list = splits.get("lapDTOs", []) if splits else []
-            for lap in lap_list:
-                lap_dist_m = lap.get("distance", 0.0)
-                lap_dur_sec =int(lap.get("duration",0))
-                lap_dist_km = round(lap_dist_m / 1000.0 , 2)
-                lap_pace_sec = int(lap_dur_sec/lap_dist_km) if lap_dist_km >0 else 0
-
-                run_lap = GarminRunLap (
-                    run_record_id=new_record.run_record_id,
-                    lap_index=lap.get("lapIndex",1),
-                    lap_distance_km=lap_dist_km,
-                    lap_duration_sec=lap_dur_sec,
-                    lap_avg_pace_sec=lap_pace_sec,
-                    lap_avg_hr=lap.get("averageHR"),
-                    lap_max_hr=lap.get("maxHR")
-                )
-                self.db.add(run_lap)
-
-        except Exception as e:
-            logger.warning(f"랩타임 조회 실패 : {e}")
-
         self.db.commit()
         return new_record
 
@@ -166,17 +154,28 @@ class GarminSyncService:
                 break
 
             running_dtos = GarminDataParser.parse_activities_list(raw_activities)
+
+            # Open-Meteo 1회 배치 날씨 조회 (0.2초)
+            weather_map = {}
+            if running_dtos:
+                dates = [dto.start_time[:10] for dto in running_dtos]
+                weather_map = WeatherFetcher.fetch_batch_map(min(dates), max(dates))
+
             for dto in running_dtos:
-                res = self.save_running_activity(runner_id, dto, client)
-                if res:
-                    saved_total += 1
+                try :
+                    res = self.save_running_activity(runner_id, dto, weather_map=weather_map)
+                    if res:
+                        saved_total += 1
+                except Exception as item_err : 
+                    logger.warning(f"활동 ID {dto.activity_id} 저장중 스킵 : {item_err}")
+                    self.db.rollback() # 세션 롤백 후 진행
 
             start += batch_size
 
             if len(raw_activities) < batch_size:
                 break
 
-            time.sleep(0.5)
+            time.sleep(0.1) # 가민 서버 차단 방지간격
 
         link.initial_sync_completed = True
         link.last_synced_at = datetime.now()
@@ -198,9 +197,14 @@ class GarminSyncService:
         raw_activities = client.get_activities(0, limit)
         running_dtos = GarminDataParser.parse_activities_list(raw_activities)
 
+        weather_map = {}
+        if running_dtos:
+            dates = [dto.start_time[:10] for dto in running_dtos]
+            weather_map = WeatherFetcher.fetch_batch_map(min(dates), max(dates))
+
         saved_count = 0
         for dto in running_dtos:
-            res = self.save_running_activity(runner_id, dto, client)
+            res = self.save_running_activity(runner_id, dto, weather_map=weather_map)
             if res : 
                 saved_count += 1
 

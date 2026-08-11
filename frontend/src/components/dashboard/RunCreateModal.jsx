@@ -113,18 +113,27 @@ export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
                             </select>
                         </div>
 
-                        {/* 💡 날씨 정보 (자동 세팅 + 수동 편집 가능) */}
-                        <div className="input-group">
-                            <label className="input-label">날씨 상태 {weatherLoading && '(조회 중...)'}</label>
-                            <div className='weather-input-row'>
-                                <select name="weatherCode" className="modal-input" value={formData.weatherCode} onChange={handleChange}>
-                                    <option value="SUNNY">☀️ 맑음</option>
-                                    <option value="CLOUDY">☁️ 흐림</option>
-                                    <option value="RAIN">🌧️ 비</option>
-                                    <option value="SNOW">❄️ 눈</option>
-                                </select>
-                                <input type="number" step="0.1" name="temperature" placeholder="기온(°C)" className="modal-input" value={formData.temperature} onChange={handleChange} style={{ width: '90px' }} />
-                                <input type="number" name="humidity" placeholder="습도(%)" className="modal-input" value={formData.humidity} onChange={handleChange} style={{ width: '80px' }} />
+                        {/* 💡 날씨 정보 (각 입력창 상단 서브 라벨 배치) */}
+                        <div className="input-group form-full">
+                            <label className="input-label">날씨 정보 {weatherLoading && '(조회 중...)'}</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
+                                <div>
+                                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>기상 상태</span>
+                                    <select name="weatherCode" className="modal-input" value={formData.weatherCode} onChange={handleChange}>
+                                        <option value="SUNNY">☀️ 맑음</option>
+                                        <option value="CLOUDY">☁️ 흐림</option>
+                                        <option value="RAIN">🌧️ 비</option>
+                                        <option value="SNOW">❄️ 눈</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>기온 (°C)</span>
+                                    <input type="number" step="0.1" name="temperature" placeholder="예: 25" className="modal-input" value={formData.temperature} onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>습도 (%)</span>
+                                    <input type="number" name="humidity" placeholder="예: 60" className="modal-input" value={formData.humidity} onChange={handleChange} />
+                                </div>
                             </div>
                         </div>
 

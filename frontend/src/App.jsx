@@ -3,6 +3,7 @@ import { BrowserRouter, Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import RunsPage from "./pages/RunsPage";
+import MyPage from "./pages/MyPage";
 import OAuth2CallbackPage from "./pages/OAuth2CallbackPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
@@ -25,6 +26,14 @@ export default function App() {
           element={<ProtectedRoute>
                      <RunsPage />
                     </ProtectedRoute>} />
+        <Route 
+          path="/profile" 
+          element={<ProtectedRoute><MyPage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/mypage" 
+          element={<ProtectedRoute><MyPage /></ProtectedRoute>} 
+        />
       </Routes>
     </BrowserRouter>
   );

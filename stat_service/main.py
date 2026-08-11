@@ -1,10 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.garmin.router import router as garmin_router
 
 app = FastAPI(
     title="Running Coach Stat & Garmin Sync API Service",
     description="러닝 코치 통계 분석 및 Garmin 연동 데이터 수집 마이크로서비스",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Garmin 연동

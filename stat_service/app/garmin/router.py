@@ -84,3 +84,26 @@ def sync_recent_activities(runner_id:int, limit: int=10, db: Session=Depends(get
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"최근 동기화 중 오류 발생: {str(e)}")
+
+@router.get("/status/{runner_id}", summary="garmin 연동상태 조회")
+def get_garmin_status(runner_id: int, db: Session = Depends(get_db)):
+    """
+    마이페이지 진입 시 연동 여부 및 최근 동기화 시각 조회
+    """
+    from app.db_models.garmin_models import GarminAccountLink
+    link = db.query(GarminAccountLink).filter(GarminAccountLink.runner_id == runner_id).first()
+
+    if not link :
+        return {
+            "is_connected": False,
+            "garmin_email": None,
+            "initial_sync_completed": False,
+            "last_synced_at": None
+        }
+
+    return {
+        "is_connected": link.is_connected,
+        "garmin_email": link.garmin_email,
+        "initial_sync_completed": link.initial_sync_completed,
+        "last_synced_at": link.last_synced_at.isoformat() if link.last_synced_at else None
+    }
