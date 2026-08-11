@@ -3,8 +3,10 @@ package com.runner.core.runner.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Builder
@@ -29,11 +31,40 @@ public class DashboardResponse {
     private Integer monthlyRunCount; // 이번달 러닝 횟수
     private Integer monthlyDurationSec; // 이번달 러닝 시간
 
+    // 러닝활동 목록
+
     // 초 단위 페이스 포멧팅
     public static String formatPace(Integer avgPaceSec) {
         if(avgPaceSec == null || avgPaceSec <= 0) return null;
         int min = avgPaceSec / 60;
         int sec = avgPaceSec % 60;
         return String.format("%02d'%02d\"", min, sec);
+    }
+
+    private List<RecentActivityDto> recentActivities;
+    private List<MonthlyTrendDto> monthlyTrends;
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RecentActivityDto {
+        private Long runRecordId;
+        private String runDate;
+        private BigDecimal distanceKm;
+        private Integer durationSec;
+        private Integer avgPaceSec;
+        private String formattedAvgPace;
+        private String trainingTypeCode;
+        private String memo;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MonthlyTrendDto {
+        private String yearMonth;
+        private BigDecimal distanceKm;
     }
 }

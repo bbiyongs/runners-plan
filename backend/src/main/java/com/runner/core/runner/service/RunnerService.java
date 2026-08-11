@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +30,22 @@ public class RunnerService {
         if(stat == null) {
             stat = new RunnerStatVo(); // 없을 경우 기본값
         }
+
+        // 최근 활동 및 6개월 추이 조회
+        List<DashboardResponse.RecentActivityDto> recentActivities = runnerMapper.getRecentActivities(runnerId, 3);
+        List<DashboardResponse.MonthlyTrendDto> monthlyTrends = runnerMapper.getMonthlyTrends(runnerId, 6);
+
+        List<DashboardResponse.RecentActivityDto> formattedRecent = recentActivities.stream()
+                .map(act -> DashboardResponse.RecentActivityDto.builder()
+                    .runRecordId(act.getRunRecordId())
+                    .runDate(act.getRunDate())
+                    .distanceKm(act.getDistanceKm())
+                    .durationSec(act.getDurationSec())
+                    .avgPaceSec(act.getAvgPaceSec())
+                    .formattedAvgPace(DashboardResponse.formatPace(act.getAvgPaceSec()))
+                    .trainingTypeCode(act.getTrainingTypeCode())
+                    .memo(act.getMemo())
+                    .build()).collect(Collectors.toList());
 
         // 누적거리에 따른 러너 케릭터 레벨 계산
         BigDecimal totalDistance = stat.getTotalDistanceKm() != null ? stat.getTotalDistanceKm(): BigDecimal.ZERO;
@@ -52,6 +70,8 @@ public class RunnerService {
                 .monthlyDistanceKm(stat.getMonthlyDistanceKm()!=null?stat.getMonthlyDistanceKm():BigDecimal.ZERO)
                 .monthlyRunCount(stat.getMonthlyRunCount()!=null?stat.getMonthlyRunCount():0)
                 .monthlyDurationSec(stat.getMonthlyDurationSec()!=null?stat.getMonthlyDurationSec():0)
+                .recentActivities(formattedRecent)
+                .monthlyTrends(monthlyTrends)
                 .build();
     }
 
