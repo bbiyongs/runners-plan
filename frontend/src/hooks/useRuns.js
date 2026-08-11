@@ -1,10 +1,12 @@
 // src/hooks/useRuns.js
 import { useState, useEffect } from 'react';
 import { runApi } from '../api/runApi';
+import { garminApi } from '../api/garminApi';
 
 export function useRuns() {
     const [allRuns, setAllRuns] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [syncingGarmin, setSyncingGarmin] = useState(false); // 가민 동기화 로딩 상태 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // 상세/수정 모달 상태 추가
@@ -142,6 +144,23 @@ export function useRuns() {
         }
     };
 
+    // 가민 수동 동기화 함수 
+    const syncGarmin = async (runnerId = 1) => {
+        try {
+            setSyncingGarmin(true);
+            const res = await garminApi.syncRecentActivities(runnerId, 10);
+            alert(res.message || '최근 garmin 기록 동기화 완료');
+            await fetchRuns();
+            return res;
+        } catch (err) {
+            console.error('Garmin 수동 동기화 오류 : ', err);
+            const detail = err.response?.data?.detail || '가민 최근 기록 동기화 오류';
+            alert(detail);
+        } finally {
+            setSyncingGarmin(false);
+        }
+    }
+
     return {
         runs: visibleRuns,
         totalCount: allRuns.length,
@@ -149,6 +168,8 @@ export function useRuns() {
         hasMore,
         handleLoadMore,
         loading,
+        syncingGarmin,
+        syncGarmin,
         filter,
         isModalOpen,
         setIsModalOpen,

@@ -61,22 +61,37 @@ class GarminDataParser:
             pace_rem_sec = avg_pace_sec % 60
             avg_pace_str = f"{pace_min}'{pace_rem_sec:02d}\""
 
-        temp = raw.get("temperature") # 기온
-        hum = raw.get("relativeHumidity") # 습도
+                # 1. 기온 데이터 (다양한 키 탐색)
+        temp = raw.get("temperature")
+        if temp is None:
+            temp = raw.get("maxTemperature") or raw.get("minTemperature")
+            
+        # 2. 습도 데이터 (relativeHumidity, humidity, weatherTypeDTO 내부 탐색)
+        hum = raw.get("relativeHumidity")
+        if hum is None:
+            hum = raw.get("humidity")
+        if hum is None and isinstance(raw.get("weatherTypeDTO"), dict):
+            hum = raw.get("weatherTypeDTO", {}).get("relativeHumidity") or raw.get("weatherTypeDTO", {}).get("humidity")
 
-        garmin_w_type = raw.get("weatherTypeDTO", {}).get("weatherTypeKey", "")
+        # 3. 날씨 상태 코드 탐색 (PARTLY_CLOUDY, MOSTLY_CLOUDY, MIST 등 키워드 확장)
         weather_code = None
+        w_dto = raw.get("weatherTypeDTO")
+        w_key = ""
+        if isinstance(w_dto, dict):
+            w_key = str(w_dto.get("weatherTypeKey") or w_dto.get("weatherType") or "").upper()
 
-        if garmin_w_type:
-            w_key = garmin_w_type.upper()
-            if any(k in w_key for k in ["RAIN", "SHOWER", "THUNDER"]):
+        if w_key:
+            if any(k in w_key for k in ["RAIN", "SHOWER", "THUNDER", "DRIZZLE", "PRECIP"]):
                 weather_code = "RAIN"
-            elif any(k in w_key for k in ["SNOW", "ICE", "FREEZING"]):
+            elif any(k in w_key for k in ["SNOW", "ICE", "FREEZING", "HAIL", "SLEET"]):
                 weather_code = "SNOW"
-            elif any(k in w_key for k in ["CLOUD", "OVERCAST", "FOG"]):
+            elif any(k in w_key for k in ["CLOUD", "OVERCAST", "FOG", "MIST", "HAZE", "PARTLY", "MOSTLY"]):
                 weather_code = "CLOUDY"
-            elif any(k in w_key for k in ["CLEAR", "SUN"]):
+            elif any(k in w_key for k in ["CLEAR", "SUN", "FAIR"]):
                 weather_code = "SUNNY"
+
+        # 💡 만약 가민에 기상 키가 아예 없는 경우 None 반환
+        logger.info(f"연동중 날씨  변환 코드 : {weather_code} 가민 코드 : {w_key}")
 
         return RunningActivityDTO (
             activity_id=activity_id,

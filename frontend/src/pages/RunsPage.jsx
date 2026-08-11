@@ -1,6 +1,6 @@
 // src/pages/RunsPage.jsx
 import React from 'react';
-import { Plus, Trash2, Filter, Heart, Eye, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Filter, Heart, Eye, ChevronDown, RefreshCw } from 'lucide-react';
 import Sidebar from '../components/layout/Sidebar';
 import RunCreateModal from '../components/dashboard/RunCreateModal';
 import RunDetailModal from '../components/dashboard/RunDetailModal';
@@ -17,6 +17,8 @@ export default function RunsPage() {
     hasMore,
     handleLoadMore,
     loading,
+    syncGarmin,
+    syncingGarmin,
     filter,
     isModalOpen,
     setIsModalOpen,
@@ -40,9 +42,33 @@ export default function RunsPage() {
             <h1 className="dashboard-title">러닝 기록</h1>
             <p className="dashboard-subtitle">나의 러닝 활동 기록을 체계적으로 관리합니다</p>
           </div>
-          <button className="add-run-btn" onClick={() => setIsModalOpen(true)}>
-            <Plus size={18} /> 새 기록 등록
-          </button>
+          {/* 👈 헤더 우측 버튼 그룹 */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              className="sync-garmin-btn" 
+              onClick={() => syncGarmin(1)} 
+              disabled={syncingGarmin}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '0.65rem 1.1rem',
+                backgroundColor: '#ffffff',
+                color: '#0284c7',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: syncingGarmin ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <RefreshCw size={16} className={syncingGarmin ? 'spin' : ''} />
+              {syncingGarmin ? '가민 동기화 중...' : '최신 가민 동기화'}
+            </button>
+            <button className="add-run-btn" onClick={() => setIsModalOpen(true)}>
+              <Plus size={18} /> 새 기록 등록
+            </button>
+          </div>
         </header>
 
         {/* 날짜 범위 검색 필터 */}
