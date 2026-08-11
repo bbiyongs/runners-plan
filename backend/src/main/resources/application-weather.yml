@@ -1,0 +1,14 @@
+weather-service:
+  api:
+    url: https://api.open-meteo.com/v1/forecast
+    timezone: Asia/Seoul
+  default:
+    location-group: RUNNING_LOCATION
+    location-name: 서울/수도권 북부
+    lat: 37.5665
+    lon: 126.9780
+    hour: 12
+  fallback:
+    temperature: 22.5
+    humidity: 60
+    weather-code: SUNNY

@@ -1,5 +1,6 @@
 package com.runner.core.run.controller;
 
+import com.runner.core.global.config.CurrentRunnerId;
 import com.runner.core.global.response.ApiResponse;
 import com.runner.core.run.dto.request.RunRecordCreateRequest;
 import com.runner.core.run.dto.response.RunRecordResponse;
@@ -21,7 +22,7 @@ public class RunRecordController {
     // 신규 기록 등록
     @PostMapping
     public ApiResponse<RunRecordResponse> createRunRecord(
-            @RequestParam(defaultValue = "1") Long runnerId,
+            @CurrentRunnerId Long runnerId,
             @Valid @RequestBody RunRecordCreateRequest request
             ) {
         RunRecordResponse response = runRecordService.createRunRecord(runnerId, request);
@@ -31,7 +32,7 @@ public class RunRecordController {
     // 내 러닝 기록 조회
     @GetMapping
     public ApiResponse<List<RunRecordResponse>> getMyRunRecords(
-            @RequestParam(defaultValue = "1") Long runnerId,
+            @CurrentRunnerId Long runnerId,
             @RequestParam(required = false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE)LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE)LocalDate endDate
             ){
@@ -42,7 +43,7 @@ public class RunRecordController {
     // 러닝 기록 상세 조회
     @GetMapping("/{id}")
     public ApiResponse<RunRecordResponse> getRunRecordDetail(
-            @RequestParam(defaultValue = "1")Long runnerId,
+            @CurrentRunnerId Long runnerId,
             @PathVariable("id") Long runRecordId ) {
 
         RunRecordResponse response = runRecordService.getRuuRecordDetail(runnerId, runRecordId);
@@ -52,7 +53,7 @@ public class RunRecordController {
     // 러닝기록 수정
     @PutMapping("/{id}")
     public ApiResponse<RunRecordResponse> updateRunRecord(
-            @RequestParam(defaultValue = "1")Long runnerId,
+            @CurrentRunnerId Long runnerId,
             @PathVariable("id") Long runRecordId,
             @Valid @RequestBody RunRecordCreateRequest request) {
 
@@ -63,7 +64,7 @@ public class RunRecordController {
     // 러닝 기록 삭제
     @DeleteMapping("/{id}")
     public ApiResponse<RunRecordResponse> deleteRunRecord(
-            @RequestParam(defaultValue = "1")Long runnerId,
+            @CurrentRunnerId Long runnerId,
             @PathVariable("id")Long runRecordId){
         runRecordService.deleteRunRecord(runnerId, runRecordId);
         return ApiResponse.success("러닝 기록 삭제 성공", null);

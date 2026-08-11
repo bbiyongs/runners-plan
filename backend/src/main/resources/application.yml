@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: running-coach-core
+  profiles:
+    include: secret, weather
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -55,4 +57,4 @@ jwt:
 app:
   oauth2:
     # 소셜 로그인 성공 후 리다이렉트할 프론트엔드/콜백 URL
-    redirect-uri: http://localhost:8080/api/vi/auth/oauth2/callback
+    redirect-uri: http://localhost:5173/oauth2/callback

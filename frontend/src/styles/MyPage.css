@@ -1,0 +1,168 @@
+.mypage-header {
+  margin-bottom: 2rem;
+}
+
+.mypage-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 800px;
+}
+
+/* 화사하고 깨끗한 카드 디자인 */
+.profile-card,
+.garmin-integration-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  color: #1e293b;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.profile-card h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.profile-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.garmin-integration-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.garmin-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #007ac1, #0284c7);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.5px;
+}
+
+.garmin-integration-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* 상태 태그 (연동완료/미연동) */
+.status-pill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-pill.connected {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.status-pill.disconnected {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.card-desc {
+  color: #475569;
+  font-size: 0.925rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.connected-details {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 1.2rem 1.4rem;
+  border-radius: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.detail-row span {
+  color: #64748b;
+}
+
+.detail-row strong {
+  color: #0f172a;
+}
+
+/* 마이페이지 관리 버튼 스티일 */
+.btn-manage-garmin,
+.btn-connect-garmin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.85rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-connect-garmin {
+  background: linear-gradient(135deg, #007ac1, #0284c7);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+}
+
+.btn-manage-garmin {
+  background: #ffffff;
+  color: #0284c7;
+  border: 1px solid #0284c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.btn-manage-garmin:hover {
+  background: #f0f9ff;
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
