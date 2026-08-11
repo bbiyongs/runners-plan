@@ -125,3 +125,86 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+/* 대시보드 하단 2단 그리드 */
+.dashboard-lower-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* 개별 위젯 카드 */
+.dashboard-widget-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.widget-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1rem 0;
+}
+
+/* 최근 운동 피드 리스트 */
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-feed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.feed-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.feed-date {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.feed-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.feed-item-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.feed-distance {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.feed-pace {
+  color: #475569;
+}
+
+.feed-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  background: #ede9fe;
+  color: #6366f1;
+  border-radius: 6px;
+}

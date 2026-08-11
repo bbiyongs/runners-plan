@@ -73,4 +73,29 @@
             WHERE runner_id = #{runnerId}
     </select>
 
+    <select id="getRecentActivities" resultType="com.runner.core.runner.dto.response.DashboardResponse$RecentActivityDto">
+        SELECT
+            run_record_id       AS runRecordId,
+            TO_CHAR(run_date, 'YYYY.MM.DD') AS runDate,
+            distance_km         AS distanceKm,
+            duration_sec        AS durationSec,
+            avg_pace_sec        AS avgPaceSec,
+            training_type_code  AS trainingTypeCode,
+            memo
+        FROM RUN_RECORD
+        WHERE runner_id = #{runnerId}
+        ORDER BY run_datetime DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="getMonthlyTrends" resultType="com.runner.core.runner.dto.response.DashboardResponse$MonthlyTrendDto">
+        SELECT
+            TO_CHAR(run_date, 'FMMM월') AS yearMonth,
+            SUM(distance_km) AS distanceKm
+        FROM RUN_RECORD
+        WHERE runner_id = #{runnerId}
+          AND run_date >= CURRENT_DATE - INTERVAL '6 months'
+        GROUP BY TO_CHAR(run_date, 'YYYY-MM'), TO_CHAR(run_date, 'FMMM월')
+        ORDER BY TO_CHAR(run_date, 'YYYY-MM') ASC
+    </select>
 </mapper>
