@@ -115,9 +115,13 @@ export default function GarminConnectModal({ isOpen, onClose, runnerId = 1, onSy
                             type="button"
                             className="btn-garmin-initial-sync"
                             onClick={handleInitialSync}
-                            disabled={syncingInitial || loading}
+                            disabled={syncingInitial || loading || statusInfo.initial_sync_completed} // 완료시 비활성화
                         >
-                            {syncingInitial ? '과거 전체 기록 가져오는 중... ⏳' : '과거 기록 전체 가져오기'}
+                            {syncingInitial 
+                                ? '과거 전체 기록 가져오는 중... '
+                                : statusInfo.initial_sync_completed
+                                ? '과거 전체 기록 동기화 완료' // 완료 문구 변경!
+                                : '과거 기록 전체 가져오기'}
                         </button>
                     </div>
                 )}

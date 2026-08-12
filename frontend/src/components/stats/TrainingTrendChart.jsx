@@ -41,10 +41,14 @@ export default function TrainingTrendChart({ data }) {
                     />
                     <Tooltip
                         contentStyle={{ backgroundColor: '#1e293b', borderRadius: '8px', color: '#fff', border: 'none' }}
-                        formatter={(value, name) => [
-                            `${value} km`,
-                            name === 'distance_km' ? '당일 거리' : (name === 'rolling_7d_distance' ? '7일 이동평균' : '30일 이동평균')
-                        ]}
+                        formatter={(value, name, item) => {
+                            const key = item.dataKey;
+                            const label = key === 'distance_km' 
+                            ? '일별 거리'
+                            : (key === 'rolling_7d_distance' ? '7일 이동평균' : '30일 이동평균');
+
+                            return [`${value} km`, label];
+                        }}
                     />
                     <Legend
                         verticalAlign="top"

@@ -39,7 +39,7 @@ class AnalyticsCalculator :
         self.db = db
         self.runner_id = runner_id
 
-    def build_analytics(self) -> AnalyticsSummaryResponse:
+    def build_analytics(self, target_year_month: Optional[str] = None) -> AnalyticsSummaryResponse:
         """ 전체 통계 인사이트 응답 생성 메인 메소드 """
         runs = self.db.query(RunRecord).filter(RunRecord.runner_id == self.runner_id).order_by(RunRecord.run_date.asc()).all()
 
@@ -69,80 +69,147 @@ class AnalyticsCalculator :
         df['run_datetime'] = pd.to_datetime(df['run_datetime'])
         df['run_date_dt'] = pd.to_datetime(df['run_date']).dt.normalize()
 
+        # 선택한 연월이 있으면 해당 월의 말일까지의 데이터만 필터링
+        if target_year_month:
+            try:
+                target_period = pd.Period(target_year_month, freq='M')
+                cutoff_date = target_period.end_time
+                df_target = df[df['run_datetime'] <= cutoff_date].copy()
+            except Exception :
+                target_period = df['run_datetime'].dt.to_period('M').max()
+                df_target = df.copy()
+
+        else :
+            target_period = df['run_datetime'].dt.to_period('M').max()
+            df_target = df.copy()
+
+        if df_target.empty:
+            return AnalyticsSummaryResponse(
+                runner_id=self.runner_id,
+                total_distance_km=0.0,
+                total_runs=0,
+                growth=None,
+                rolling_trends=[],
+                acwr=None,
+                heatmap=None,
+                garmin_analytics=None
+            )
+
         return AnalyticsSummaryResponse(
             runner_id=self.runner_id,
-            total_distance_km=round(float(df['distance_km'].sum()), 2),
-            total_runs=len(df),
-            growth=self._calculate_growth(df),
-            rolling_trends=self._calculate_rolling_trends(df),
+            total_distance_km=round(float(df_target['distance_km'].sum()), 2),
+            total_runs=len(df_target),
+            growth=self._calculate_growth(df_target, target_year_month=str(target_period)),
+            rolling_trends=self._calculate_rolling_trends(df_target),
             acwr=self._calculate_acwr(df),
             heatmap=self._calculate_heatmap(df),
             garmin_analytics=None
         )
 
-    def _calculate_growth(self, df:pd.DataFrame) -> Optional[GrowthInsight]:
+    def _calculate_growth(self, df:pd.DataFrame, target_year_month: Optional[str]=None) -> Optional[GrowthInsight]:
         """ 전월 / 전년 동월 성장 추이 분석 """
         if df.empty:
             return None
 
         # 월 단위 집계 
-        df['year_month'] = df['run_datetime'].dt.to_period('M')
-        df_monthly = df.groupby('year_month').agg({
-            'distance_km':'sum',
-            'avg_pace_sec': 'mean'
-        }).reset_index()
+        df_copy = df.copy()
+        df_copy['year_month'] = df_copy['run_datetime'].dt.to_period('M')
+        df_copy['day'] = df_copy['run_datetime'].dt.day
 
-        if df_monthly.empty :
-            return None
+        # 기준 월 결정
+        if target_year_month:
+            try :
+                latest_period = pd.Period(target_year_month, freq='M')
+            except Exception : 
+                latest_period = df_copy['year_month'].max()
+        else :
+            latest_period = df_copy['year_month'].max()
 
-        # 가장 최근에 달린 월 
-        latest_period = df_monthly['year_month'].max()
-        current_month_data = df_monthly[df_monthly['year_month']== latest_period].iloc[0]
+        # 기준월 데이터 추출
+        current_month_df = df_copy[df_copy['year_month'] == latest_period]
+        if current_month_df.empty:
+            return GrowthInsight(
+                mom_distance_change_pct=None,
+                mom_pace_change_sec=None,
+                yoy_distance_change_pct=None,
+                yoy_pace_change_sec=None,
+                # 선택한 월의 데이터가 없을 때도 명시적으로 None 지정
+                current_mtd_distance_km=None,
+                prev_month_mtd_distance_km=None,
+                prev_year_mtd_distance_km=None,
+                max_day=None,
+                insight_text=f"{latest_period} 선택한 월의 러닝 기록이 없습니다."
+            )
 
-        # 전월 : 이전달 
+        #MTD 기준일자 계산 
+        # 이번 달 러닝 기록중 가장 마지막 날짜 
+        #max_day = current_month_df['day'].max()
+        today_period = pd.Period(datetime.now(), freq='M')
+
+        if latest_period < today_period:
+            max_day = latest_period.days_in_month
+        else :
+            max_day = datetime.now().day
+
+        # 이번달 MTD 데이터 집계
+        current_mtd_df = current_month_df[current_month_df['day'] <= max_day]
+        current_dist = float(current_mtd_df['distance_km'].sum())
+        current_pace = current_mtd_df['avg_pace_sec'].mean()
+
+        # 전월 동일 MTD 구간 비교 연산
         prev_period = latest_period -1
-        prev_month_df = df_monthly[df_monthly['year_month']== prev_period]
+        prev_month_df = df_copy[(df_copy['year_month'] == prev_period) & (df_copy['day'] <= max_day)]
 
         mom_dist_pct = None
         mom_pace_diff = None
 
         if not prev_month_df.empty:
-            prev_month_data = prev_month_df.iloc[0]
-            if prev_month_data['distance_km'] > 0:
-                mom_dist_pct = round(((current_month_data['distance_km'] - prev_month_data['distance_km']) / prev_month_data['distance_km']) * 100, 1)
-            if pd.notna(current_month_data['avg_pace_sec']) and pd.notna(prev_month_data['avg_pace_sec']):
-                mom_pace_diff = int(current_month_data['avg_pace_sec'] - prev_month_data['avg_pace_sec'])
+            prev_dist = float(prev_month_df['distance_km'].sum())
+            prev_pace = prev_month_df['avg_pace_sec'].mean()
 
-        # 전년 동월 
+            if prev_dist > 0 :
+                mom_dist_pct = round(((current_dist - prev_dist)/prev_dist) * 100, 1)
+            if pd.notna(current_pace) and pd.notna(prev_pace) :
+                mom_pace_diff = int(current_pace - prev_pace)
+
+        # 전년 동월 동일 MTD 구간 
         prev_year_period = latest_period - 12
-        prev_year_df = df_monthly[df_monthly['year_month'] == prev_year_period]
+        prev_year_df = df_copy[(df_copy['year_month'] == prev_year_period) & (df_copy['day'] <= max_day)]
 
         yoy_dist_pct = None
         yoy_pace_diff = None
 
         if not prev_year_df.empty:
-            prev_year_data = prev_year_df.iloc[0]
-            if prev_year_data['distance_km'] > 0:
-                yoy_dist_pct = round(((current_month_data['distance_km'] - prev_year_data['distance_km']) / prev_year_data['distance_km']) * 100, 1)
-            if pd.notna(current_month_data['avg_pace_sec']) and pd.notna(prev_year_data['avg_pace_sec']):
-                yoy_pace_diff = int(current_month_data['avg_pace_sec'] - prev_year_data['avg_pace_sec'])
+            prev_year_dist = float(prev_year_df['distance_km'].sum())
+            prev_year_pace = prev_year_df['avg_pace_sec'].mean()
 
-        # 4. 인사이트 문구 생성
+            if prev_year_dist > 0:
+                yoy_dist_pct = round(((current_dist - prev_year_dist)/prev_year_dist) * 100, 1)
+            if pd.notna(current_pace) and pd.notna(prev_year_pace):
+                yoy_pace_diff = int(current_pace - prev_year_pace)
+
+        # MTD 맞춤형 사용자 인사이트 구성
         insight_parts = []
         if mom_dist_pct is not None:
             sign = "+" if mom_dist_pct >= 0 else ""
-            insight_parts.append(f"지난달 대비 거리는 {sign}{mom_dist_pct}% 변화했습니다.")
+            insight_parts.append(f"지난달 {max_day}일까지 대비 이번 달 {max_day}일까지 거리는 {sign}{mom_dist_pct}% 변화했습니다.")
         if mom_pace_diff is not None:
             if mom_pace_diff < 0:
                 insight_parts.append(f"페이스는 {abs(mom_pace_diff)}초 단축되었습니다! 🏆")
             elif mom_pace_diff > 0:
                 insight_parts.append(f"페이스는 {mom_pace_diff}초 증가했습니다.")
-        text = " ".join(insight_parts) if insight_parts else "데이터를 축적하면 성과 인사이트가 제공됩니다."
+        text = " ".join(insight_parts) if insight_parts else "데이터를 축적하면 MTD 성과 인사이트가 제공됩니다."
         return GrowthInsight(
             mom_distance_change_pct=mom_dist_pct,
             mom_pace_change_sec=mom_pace_diff,
             yoy_distance_change_pct=yoy_dist_pct,
             yoy_pace_change_sec=yoy_pace_diff,
+            # 원본 수치 추가 전달
+            current_mtd_distance_km=round(current_dist, 1),
+            prev_month_mtd_distance_km=round(prev_dist, 1) if 'prev_dist' in locals() else None,
+            prev_year_mtd_distance_km=round(prev_year_dist, 1) if 'prev_year_dist' in locals() else None,
+            max_day=max_day,
+
             insight_text=text
         )
 

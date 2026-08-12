@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { garminApi } from "../api/garminApi";
 
-export function useGarminConnect (isOpen, runnerId = 1, onSyncSuccess) {
+export function useGarminConnect (isOpen, runnerId, onSyncSuccess) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,23 +18,37 @@ export function useGarminConnect (isOpen, runnerId = 1, onSyncSuccess) {
 
     // 가민 연동 상태 조회
     const fetchGarminStatus = useCallback(async() => {
+        if (!runnerId) return;
         try{
             setErrorMessage('');
             const data = await garminApi.getStatus(runnerId);
             setStatusInfo(data);
-            if (data.garmin_email) setEmail(data.garmin_email);
+            if (data.garmin_email) {
+                setEmail(data.garmin_email)
+            } else {
+                setEmail('');
+            };
         } catch(err){
             console.error('Garmin 상태 조회 실패 : ', err);
+            setStatusInfo({
+                is_connected: false,
+                garmin_email:'',
+                initial_sync_completed: false,
+                last_synced_at: null,
+            });
+            setEmail('');
         }
     }, [runnerId]);
 
     useEffect(()=> {
         if(isOpen) {
+            setEmail('');
+            setPassword('');
             fetchGarminStatus();
             setErrorMessage('');
             setSuccessMessage('');
         }
-    }, [isOpen, fetchGarminStatus]);
+    }, [isOpen, runnerId, fetchGarminStatus]);
 
     // 계정연동 제출
     const handleConnectSubmit = async(e) => {

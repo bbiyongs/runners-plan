@@ -5,24 +5,56 @@ import { garminApi } from "../api/garminApi";
 import { ShieldCheck, RefreshCw, Link as LinkIcon, User } from "lucide-react";
 import '../styles/MyPage.css';
 
+// JWT accessToken 에서 runnerId 를 파싱
+const getRunnerIdFromToken = () => {
+    const token = localStorage.getItem('accessToken');
+    if(!token) return null;
+    try {
+        const base64Payload = token.split('.')[1];
+        const payload = JSON.parse(atob(base64Payload));
+        // jwt payload 에 포함된 runnerId
+        return payload.runnerId || payload.sub || null;
+    } catch (e) {
+        console.error("JWT 토큰 파싱 실패 : ", e);
+        return null;
+    }
+}
+
 export default function MyPage() {
-    const runnerId = 1;
+    // JWT 토큰에서 runnerId 추출
+    const getStoredUser = () => {
+        try{
+            const rawUser = localStorage.getItem('user');
+            if (!rawUser) return {};
+            if (typeof rawUser === 'object') return rawUser;
+            return JSON.parse(rawUser);
+        } catch(e) {
+            console.warn("user 로컬 스토리지 파싱 오류 : ", e);
+            return {};
+        }
+    }
+
+    const storedUser = getStoredUser();
+    const runnerId = getRunnerIdFromToken() || storedUser.runner_id || storedUser.id;
+
     const [isGarminModalOpen, setIsGarminModalOpen] = useState(false);
     const [garminStatus, setGarminStatus] = useState({
         is_connected: false,
         garmin_email: null,
+        initial_sync_completed: false,
         last_synced_at: null,
-
     });
     const [loading, setLoading] = useState(true);
 
     const fetchStatus = async () => {
+        if (!runnerId) return;
         try {
             setLoading(true);
             const data = await garminApi.getStatus(runnerId);
             setGarminStatus(data);
         } catch (err) {
             console.error('garmin 상태 로드 실패 : ', err);
+            setGarminStatus({ is_connected: false, garmin_email: null, initial_sync_completed: false, last_synced_at: null });
         } finally {
             setLoading(false);
         }
@@ -30,7 +62,7 @@ export default function MyPage() {
 
     useEffect(() => {
         fetchStatus();
-    }, []);
+    }, [runnerId]);
 
     return (
         <div className="dashboard-layout">

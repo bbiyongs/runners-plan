@@ -4,9 +4,16 @@ from pydantic import BaseModel, Field
 class GrowthInsight(BaseModel):
     """전월(MoM) 및 전년 동월(YoY) 성과 비교 인사이트 DTO"""
     mom_distance_change_pct: Optional[float] = Field(None, description="전월 대비 거리 변화율 (%)")
-    mom_pace_change_sec: Optional[int] = Field(None, description="전월 대비 페이스 단축/지연 초 (-: 단축, +: 지연)")
+    mom_pace_change_sec: Optional[int] = Field(None, description="전월 대비 페이스 단축/지연 초")
     yoy_distance_change_pct: Optional[float] = Field(None, description="전년 동월 대비 거리 변화율 (%)")
     yoy_pace_change_sec: Optional[int] = Field(None, description="전년 동월 대비 페이스 단축/지연 초")
+    
+    # 원본 데이터 비교 수치 필드 추가
+    current_mtd_distance_km: Optional[float] = Field(None, description="이번 달 MTD 누적 거리 (km)")
+    prev_month_mtd_distance_km: Optional[float] = Field(None, description="지난달 MTD 누적 거리 (km)")
+    prev_year_mtd_distance_km: Optional[float] = Field(None, description="작년 동월 MTD 누적 거리 (km)")
+    max_day: Optional[int] = Field(None, description="MTD 기준 일자 (예: 12일)")
+    
     insight_text: str = Field(..., description="사용자 친화적 인사이트 문구")
 
 class RollingTrendPoint(BaseModel):
