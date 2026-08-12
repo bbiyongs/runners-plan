@@ -1,0 +1,22 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app.analytics.models import AnalyticsSummaryResponse
+from app.analytics.stats_calculator import AnalyticsCalculator
+
+router = APIRouter(
+    prefix="/api/v1/stats",
+    tags=["analytics & Statistics"]
+)
+
+@router.get("/analytics/{runner_id}", response_model=AnalyticsSummaryResponse)
+def get_runner_analytics(runner_id: int, db: Session = Depends(get_db)):
+    try : 
+        calculator = AnalyticsCalculator(db=db, runner_id=runner_id)
+        return calculator.build_analytics()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"통계 분석 데이터 계산중 오류 발생 : {str(e)}"
+        )

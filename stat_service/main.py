@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.garmin.router import router as garmin_router
+from app.analytics.router import router as analytics_router
 
 app = FastAPI(
     title="Running Coach Stat & Garmin Sync API Service",
@@ -18,6 +19,9 @@ app.add_middleware(
 
 # Garmin 연동
 app.include_router(garmin_router)
+# 통계 연동
+app.include_router(analytics_router)
+
 
 @app.get("/health")
 def health_check() :

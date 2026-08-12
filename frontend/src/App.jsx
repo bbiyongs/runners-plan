@@ -6,6 +6,7 @@ import RunsPage from "./pages/RunsPage";
 import MyPage from "./pages/MyPage";
 import OAuth2CallbackPage from "./pages/OAuth2CallbackPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import StatsPage from "./pages/StatsPage";
 
 export default function App() {
   return (
@@ -33,6 +34,10 @@ export default function App() {
         <Route 
           path="/mypage" 
           element={<ProtectedRoute><MyPage /></ProtectedRoute>} 
+        />
+        <Route
+          path="/stats"
+          element={<ProtectedRoute><StatsPage/></ProtectedRoute>}
         />
       </Routes>
     </BrowserRouter>
