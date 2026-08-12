@@ -179,14 +179,21 @@ export default function StatsPage() {
                                 <div className="stat-card-sub" style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
                                     {data?.growth?.prev_year_mtd_distance_km != null ? (
                                         <>
-                                            <div>· 올해 {data.growth.max_day}일까지: <strong>{data.growth.current_mtd_distance_km} km</strong></div>
-                                            <div>· 작년 {data.growth.max_day}일까지: <strong>{data.growth.prev_year_mtd_distance_km} km</strong></div>
+                                            <div>
+                                                · {data.growth.max_day >= 28 ? '선택월 전체:' : `올해 ${data.growth.max_day}일까지:`}
+                                                <strong> {data.growth.current_mtd_distance_km} km</strong>
+                                            </div>
+                                            <div>
+                                                · {data.growth.max_day >= 28 ? '작년 동월 전체:' : `작년 ${data.growth.max_day}일까지:`}
+                                                <strong> {data.growth.prev_year_mtd_distance_km} km</strong>
+                                            </div>
                                         </>
                                     ) : (
                                         "작년 동월 기록과 비교 데이터 수집 중"
                                     )}
                                 </div>
                             </div>
+
                             {/* [카드 2] 전월 대비 (MoM) 성과 */}
                             <div className="stat-card">
                                 <div className="stat-card-header">
@@ -199,8 +206,14 @@ export default function StatsPage() {
                                 <div className="stat-card-sub" style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
                                     {data?.growth?.prev_month_mtd_distance_km != null ? (
                                         <>
-                                            <div>· 이번달 {data.growth.max_day}일까지: <strong>{data.growth.current_mtd_distance_km} km</strong></div>
-                                            <div>· 지난달 {data.growth.max_day}일까지: <strong>{data.growth.prev_month_mtd_distance_km} km</strong></div>
+                                            <div>
+                                                · {data.growth.max_day >= 28 ? '선택월 전체:' : `이번달 ${data.growth.max_day}일까지:`}
+                                                <strong> {data.growth.current_mtd_distance_km} km</strong>
+                                            </div>
+                                            <div>
+                                                · {data.growth.max_day >= 28 ? '지난달 전체:' : `지난달 ${data.growth.max_day}일까지:`}
+                                                <strong> {data.growth.prev_month_mtd_distance_km} km</strong>
+                                            </div>
                                         </>
                                     ) : (
                                         "지난달 동기간 데이터와 비교 대기 중"

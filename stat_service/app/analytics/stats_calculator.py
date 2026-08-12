@@ -145,23 +145,35 @@ class AnalyticsCalculator :
         # 이번 달 러닝 기록중 가장 마지막 날짜 
         #max_day = current_month_df['day'].max()
         today_period = pd.Period(datetime.now(), freq='M')
+        is_past_month = latest_period < today_period
 
-        if latest_period < today_period:
+        if is_past_month:
+             # 🟢 과거 완료된 달: 31일 데이터를 포함한 전체 월 100% 비교!
             max_day = latest_period.days_in_month
+            current_mtd_df = current_month_df
+            
+            prev_period = latest_period - 1
+            prev_month_df = df_copy[df_copy['year_month'] == prev_period]
+            
+            prev_year_period = latest_period - 12
+            prev_year_df = df_copy[df_copy['year_month'] == prev_year_period]
         else :
             max_day = datetime.now().day
+            current_mtd_df = current_month_df[current_month_df['day'] <= max_day]
+            
+            prev_period = latest_period - 1
+            prev_month_df = df_copy[(df_copy['year_month'] == prev_period) & (df_copy['day'] <= max_day)]
+            
+            prev_year_period = latest_period - 12
+            prev_year_df = df_copy[(df_copy['year_month'] == prev_year_period) & (df_copy['day'] <= max_day)]
 
         # 이번달 MTD 데이터 집계
-        current_mtd_df = current_month_df[current_month_df['day'] <= max_day]
         current_dist = float(current_mtd_df['distance_km'].sum())
         current_pace = current_mtd_df['avg_pace_sec'].mean()
 
-        # 전월 동일 MTD 구간 비교 연산
-        prev_period = latest_period -1
-        prev_month_df = df_copy[(df_copy['year_month'] == prev_period) & (df_copy['day'] <= max_day)]
-
         mom_dist_pct = None
         mom_pace_diff = None
+        prev_dist = 0.0
 
         if not prev_month_df.empty:
             prev_dist = float(prev_month_df['distance_km'].sum())
@@ -171,10 +183,6 @@ class AnalyticsCalculator :
                 mom_dist_pct = round(((current_dist - prev_dist)/prev_dist) * 100, 1)
             if pd.notna(current_pace) and pd.notna(prev_pace) :
                 mom_pace_diff = int(current_pace - prev_pace)
-
-        # 전년 동월 동일 MTD 구간 
-        prev_year_period = latest_period - 12
-        prev_year_df = df_copy[(df_copy['year_month'] == prev_year_period) & (df_copy['day'] <= max_day)]
 
         yoy_dist_pct = None
         yoy_pace_diff = None
