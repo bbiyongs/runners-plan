@@ -22,7 +22,7 @@ export default function DashboardPage() {
           <ErrorState
               title="대시보드 정보를 불러올 수 없습니다"
               message={error}
-              onRetry={fetchDashboard}
+              onRetry={refetchDashboard}
           />
       );
   }

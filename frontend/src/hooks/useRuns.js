@@ -18,10 +18,9 @@ export function useRuns() {
     const PAGE_SIZE = 5;
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const firstDayStr = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        .toISOString()
-        .split('T')[0];
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const firstDayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
     const [filter, setFilter] = useState({
         startDate: firstDayStr,
@@ -55,7 +54,7 @@ export function useRuns() {
 
     // 더보기 버튼 클릭시 10개 추가 
     const handleLoadMore = () => {
-        setVisibleCount((prev)=> prev + PAGE_SIZE);
+        setVisibleCount((prev) => prev + PAGE_SIZE);
     };
 
     // 현재 화면에 보여줄 갯수만큼 자른 데이터 목록
@@ -63,8 +62,8 @@ export function useRuns() {
     const hasMore = visibleCount < allRuns.length;
 
     // 상세정보 열기
-    const openDetail = async(runRecordId) => {
-        try{
+    const openDetail = async (runRecordId) => {
+        try {
             const detail = await runApi.getRunRecordDetail(runRecordId);
             setSelectedRun(detail);
             setIsDetailOpen(true);
@@ -95,7 +94,7 @@ export function useRuns() {
             rpe: parseInt(formData.rpe, 10),
             temperature: formData.temperature !== '' ? parseFloat(formData.temperature) : null,
             humidity: formData.humidity !== '' ? parseInt(formData.humidity, 10) : null,
-            wetherCode: formData.wetherCode || 'SUNNY',
+            weatherCode: formData.weatherCode || 'SUNNY',
             memo: formData.memo,
         };
 
@@ -107,22 +106,22 @@ export function useRuns() {
     };
 
     // 기록 수정
-    const updateRun = async(id, formData) => {
+    const updateRun = async (id, formData) => {
         try {
             const runDatetime = `${formData.runDate}T${formData.runTime}:00`;
-            const totalSec = (parseInt(formData.hours||'0', 10) * 3600) + (parseInt(formData.minutes || '0', 10) * 60) + parseInt(formData.seconds || '0', 10);
+            const totalSec = (parseInt(formData.hours || '0', 10) * 3600) + (parseInt(formData.minutes || '0', 10) * 60) + parseInt(formData.seconds || '0', 10);
 
             const requestPayload = {
                 runDatetime,
                 distanceKm: parseFloat(formData.distanceKm),
                 durationSec: totalSec,
-                avgHr: formData.avgHr? parseInt(formData.avgHr, 10) : null,
-                trainingTypeCode : formData.trainingTypeCode,
+                avgHr: formData.avgHr ? parseInt(formData.avgHr, 10) : null,
+                trainingTypeCode: formData.trainingTypeCode,
                 rpe: parseInt(formData.rpe, 10),
-                temperature: formData.temperature !== ''? parseFloat(formData.temperature): null, 
-                humidity: formData.humidity !== ''? parseInt(formData.humidity, 10) : null,
-                weatherCode : formData.weatherCode || 'SUNNY',
-                memo:formData.memo, 
+                temperature: formData.temperature !== '' ? parseFloat(formData.temperature) : null,
+                humidity: formData.humidity !== '' ? parseInt(formData.humidity, 10) : null,
+                weatherCode: formData.weatherCode || 'SUNNY',
+                memo: formData.memo,
             }
 
             await runApi.updateRunRecord(id, requestPayload);

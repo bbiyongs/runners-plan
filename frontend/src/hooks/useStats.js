@@ -35,7 +35,7 @@ export function useStats() {
             setUserInfo(myInfo);
 
             const targetMonthParam = activeTab === 'report' ? selectedMonth : null;
-            const analyticsData = await fetchRunnerAnalytics(myInfo.runnerId, selectedMonth);
+            const analyticsData = await fetchRunnerAnalytics(myInfo.runnerId, targetMonthParam);
             setData(analyticsData);
 
         } catch (err) {

@@ -35,7 +35,7 @@ export default function PerformanceHeatmapCard({ heatmapData }) {
                             {formatPace(pt.avg_pace_sec)}
                         </div>
                         {/* 💡 요일 전체 횟수 및 비중 (%) 표출 */}
-                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px', borderTop: '1px stroke #e2e8f0', paddingTop: '4px' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px', borderTop: '1px solid #e2e8f0', paddingTop: '4px' }}>
                             {pt.weekday}요일 총 {pt.weekday_total_runs || pt.run_count}회 중 <strong>{pt.run_count}회 ({pt.slot_pct || 100}%)</strong>
                         </div>
                     </div>

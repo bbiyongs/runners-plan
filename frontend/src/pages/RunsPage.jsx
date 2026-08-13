@@ -41,7 +41,7 @@ export default function RunsPage() {
       <ErrorState
         title="러닝 기록을 불러올 수 없습니다"
         message={error}
-        onRetry={fetchRuns}
+        onRetry={() => window.location.reload()}
       />
     );
   }

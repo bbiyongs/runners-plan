@@ -1,6 +1,6 @@
 // 초를 x시간y분z초 / y분z초 로 변환
 export function formatDuration(durationSec) {
-    if(!durationSec) return '-';
+    if(durationSec == null) return '-';
     const hours = Math.floor(durationSec/3600);
     const minutes = Math.floor((durationSec %3600) /60 );
     const seconds = durationSec % 60;

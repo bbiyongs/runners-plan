@@ -7,6 +7,8 @@ export default function Sidebar() {
     const location = useLocation();
 
     const handleLogout = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         alert('로그아웃 되었습니다.');
         navigate('/');
     };
