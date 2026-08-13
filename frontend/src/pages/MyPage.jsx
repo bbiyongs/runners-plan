@@ -47,7 +47,12 @@ export default function MyPage() {
     const [loading, setLoading] = useState(true);
 
     const fetchStatus = async () => {
-        if (!runnerId) return;
+        if (!runnerId) {
+            alert('사용자 정보를 찾을수 없습니다. 다시 로그인해주세요. ');
+            localStorage.removeItem('accessToken');
+            window.location.href = '/';
+            return;
+        }
         try {
             setLoading(true);
             const data = await garminApi.getStatus(runnerId);

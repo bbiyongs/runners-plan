@@ -31,7 +31,7 @@ axiosInstance.interceptors.response.use(
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
 
-            console.warn('인증이 만료되었습니다. 다시 로그인해주세요.');
+            alert('세션이 만료되었습니다. 다시 로그인해 주세요.');
             window.location.href = '/';
         }
         return Promise.reject(error);

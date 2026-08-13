@@ -7,6 +7,8 @@ import RunDetailModal from '../components/dashboard/RunDetailModal';
 import { useRuns } from '../hooks/useRuns';
 import { formatDuration, getRpeLabel } from '../utils/formatters';
 import '../styles/RunsPage.css';
+import ErrorState from '../components/common/ErrorState';
+import { translateTrainingType } from '../constants/runningConstants';
 
 export default function RunsPage() {
   // 💡 비즈니스 로직은 custom hook 하나로 깔끔하게 호출!
@@ -30,7 +32,19 @@ export default function RunsPage() {
     createRun,
     updateRun,
     deleteRun,
+    error,
   } = useRuns();
+
+  // 💡 에러 발생 시 공통 ErrorState 표출!
+  if (error) {
+    return (
+      <ErrorState
+        title="러닝 기록을 불러올 수 없습니다"
+        message={error}
+        onRetry={fetchRuns}
+      />
+    );
+  }
 
   return (
     <div className="dashboard-layout">
@@ -44,9 +58,9 @@ export default function RunsPage() {
           </div>
           {/* 👈 헤더 우측 버튼 그룹 */}
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              className="sync-garmin-btn" 
-              onClick={() => syncGarmin(1)} 
+            <button
+              className="sync-garmin-btn"
+              onClick={() => syncGarmin(1)}
               disabled={syncingGarmin}
               style={{
                 display: 'inline-flex',
@@ -87,76 +101,76 @@ export default function RunsPage() {
           <div style={{ padding: '20px' }}>기록 목록을 불러오는 중입니다...</div>
         ) : (
           <>
-          <div className="runs-table-card">
-            <table className="runs-table">
-              <thead>
-                <tr>
-                  <th>날짜</th>
-                  <th>거리</th>
-                  <th>운동 시간</th>
-                  <th>평균 페이스</th>
-                  <th>평균 심박수</th>
-                  <th>훈련 유형</th>
-                  <th>운동 강도(RPE)</th>
-                  <th>메모</th>
-                  <th>관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.length === 0 ? (
+            <div className="runs-table-card">
+              <table className="runs-table">
+                <thead>
                   <tr>
-                    <td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                      해당 기간에 등록된 러닝 기록이 없습니다.
-                    </td>
+                    <th>날짜</th>
+                    <th>거리</th>
+                    <th>운동 시간</th>
+                    <th>평균 페이스</th>
+                    <th>평균 심박수</th>
+                    <th>훈련 유형</th>
+                    <th>운동 강도(RPE)</th>
+                    <th>메모</th>
+                    <th>관리</th>
                   </tr>
-                ) : (
-                  runs.map((run) => (
-                    <tr key={run.runRecordId} style={{ cursor: 'pointer' }}>
-                      <td onClick={() => openDetail(run.runRecordId)}>{run.runDate}</td>
-                      <td onClick={() => openDetail(run.runRecordId)}><strong>{run.distanceKm} km</strong></td>
-                      <td onClick={() => openDetail(run.runRecordId)}>{formatDuration(run.durationSec)}</td>
-                      <td onClick={() => openDetail(run.runRecordId)}>{run.formattedPace || '-'}</td>
-                      <td onClick={() => openDetail(run.runRecordId)}>
-                        {run.avgHr ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--danger)', fontWeight: '600' }}>
-                            <Heart size={14} fill="var(--danger)" /> {run.avgHr} bpm
-                          </span>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td onClick={() => openDetail(run.runRecordId)}><span className="badge-training">{run.trainingTypeCode}</span></td>
-                      <td onClick={() => openDetail(run.runRecordId)}>{getRpeLabel(run.rpe)}</td>
-                      <td onClick={() => openDetail(run.runRecordId)}>{run.memo || '-'}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button className="delete-icon-btn" onClick={() => openDetail(run.runRecordId)} style={{ color: 'var(--primary)' }}>
-                            <Eye size={16} />
-                          </button>
-                          <button className="delete-icon-btn" onClick={(e) => { e.stopPropagation(); deleteRun(run.runRecordId); }}>
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                </thead>
+                <tbody>
+                  {runs.length === 0 ? (
+                    <tr>
+                      <td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                        해당 기간에 등록된 러닝 기록이 없습니다.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {totalCount > 0 && (
-            <div className='load-more-container'>
-              {hasMore? (
-                <button className='load-more-btn' onClick={handleLoadMore}>
-                  <ChevronDown size={18} />
-                  더보기 ({Math.min(visibleCount, totalCount)}/{totalCount})
-                </button>
-              ): (
-                <span className='all-loaded-text'>모든 기록을 불러왔습니다. (총 {totalCount}개)</span>
-              )}
+                  ) : (
+                    runs.map((run) => (
+                      <tr key={run.runRecordId} style={{ cursor: 'pointer' }}>
+                        <td onClick={() => openDetail(run.runRecordId)}>{run.runDate}</td>
+                        <td onClick={() => openDetail(run.runRecordId)}><strong>{run.distanceKm} km</strong></td>
+                        <td onClick={() => openDetail(run.runRecordId)}>{formatDuration(run.durationSec)}</td>
+                        <td onClick={() => openDetail(run.runRecordId)}>{run.formattedPace || '-'}</td>
+                        <td onClick={() => openDetail(run.runRecordId)}>
+                          {run.avgHr ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--danger)', fontWeight: '600' }}>
+                              <Heart size={14} fill="var(--danger)" /> {run.avgHr} bpm
+                            </span>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td onClick={() => openDetail(run.runRecordId)}><span className="badge-training">{translateTrainingType(run.trainingTypeCode)}</span></td>
+                        <td onClick={() => openDetail(run.runRecordId)}>{getRpeLabel(run.rpe)}</td>
+                        <td onClick={() => openDetail(run.runRecordId)}>{run.memo || '-'}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="delete-icon-btn" onClick={() => openDetail(run.runRecordId)} style={{ color: 'var(--primary)' }}>
+                              <Eye size={16} />
+                            </button>
+                            <button className="delete-icon-btn" onClick={(e) => { e.stopPropagation(); deleteRun(run.runRecordId); }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
+
+            {totalCount > 0 && (
+              <div className='load-more-container'>
+                {hasMore ? (
+                  <button className='load-more-btn' onClick={handleLoadMore}>
+                    <ChevronDown size={18} />
+                    더보기 ({Math.min(visibleCount, totalCount)}/{totalCount})
+                  </button>
+                ) : (
+                  <span className='all-loaded-text'>모든 기록을 불러왔습니다. (총 {totalCount}개)</span>
+                )}
+              </div>
+            )}
           </>
         )}
 

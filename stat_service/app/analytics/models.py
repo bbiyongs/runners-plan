@@ -7,6 +7,17 @@ class GrowthInsight(BaseModel):
     mom_pace_change_sec: Optional[int] = Field(None, description="전월 대비 페이스 단축/지연 초")
     yoy_distance_change_pct: Optional[float] = Field(None, description="전년 동월 대비 거리 변화율 (%)")
     yoy_pace_change_sec: Optional[int] = Field(None, description="전년 동월 대비 페이스 단축/지연 초")
+
+    # 🫀 [신규] 심박수 및 심폐 효율성 관련 필드 추가
+    mom_hr_change_bpm: Optional[int] = Field(None, description="전월 대비 평균 심박수 변화 (bpm, -: 심박 감소/심폐 강화)")
+    mom_efficiency_change_pct: Optional[float] = Field(None, description="전월 대비 심폐 효율성 변화율 (%)")
+    yoy_hr_change_bpm: Optional[int] = Field(None, description="전년 동월 대비 평균 심박수 변화 (bpm)")
+    yoy_efficiency_change_pct: Optional[float] = Field(None, description="전년 동월 대비 심폐 효율성 변화율 (%)")
+    
+    current_avg_hr: Optional[int] = Field(None, description="이번 달 MTD 평균 심박수 (bpm)")
+    prev_month_avg_hr: Optional[int] = Field(None, description="지난달 MTD 평균 심박수 (bpm)")
+
+    current_month_run_count: Optional[int] = Field(None, description="선택 월 순수 러닝 횟수 (회)")
     
     # 원본 데이터 비교 수치 필드 추가
     current_mtd_distance_km: Optional[float] = Field(None, description="이번 달 MTD 누적 거리 (km)")
@@ -23,6 +34,7 @@ class RollingTrendPoint(BaseModel):
     avg_pace_sec: Optional[int] = Field(None, description="당일 평균 페이스 (초)")
     rolling_7d_distance: float = Field(..., description="7일 이동평균 거리 (km)")
     rolling_30d_distance: float = Field(..., description="30일 이동평균 거리 (km)")
+    avg_hr: Optional[int] = Field(None, description="해당 일자 평균 심박수 (bpm)")
 
 class AcwrStatus(BaseModel):
     """ACWR (Acute:Chronic Workload Ratio) 부상 위험 방지 지표 DTO"""
@@ -37,6 +49,9 @@ class HeatmapPoint(BaseModel):
     weekday: str = Field(..., description="요일 (월, 화, 수, 목, 금, 토, 일)")
     time_slot: str = Field(..., description="시간대 (아침, 낮, 저녁, 심야)")
     run_count: int = Field(..., description="해당 시간대 러닝 횟수")
+    #보완 필드 추가
+    weekday_total_runs: Optional[int] = Field(None, description="해당 요일 전체 러닝 횟수")
+    slot_pct: Optional[int] = Field(None, description="해당 요일 내 시간대 비중 (%)")
     avg_pace_sec: Optional[int] = Field(None, description="해당 시간대 평균 페이스 (초)")
 
 class HeatmapInsight(BaseModel):
@@ -66,6 +81,22 @@ class GarminPacingInsight(BaseModel):
     laps: List[GarminLapDetail] = Field(default_factory=list, description="랩타임 리스트")
     hr_zones: List[GarminHrZoneItem] = Field(default_factory=list, description="심박 구간 분포")
 
+# 스마트 코칭 액션 가이드 DTO
+class CoachRecommendation(BaseModel):
+    action_title: str = Field(..., description="추천 훈련 제목 (예: 5km 가벼운 회복 조깅)")
+    target_pace_text: str = Field(..., description="권장 페이스 (예: 06'00\"/km 이내)")
+    target_hr_text: str = Field(..., description="권장 심박수 (예: 145 bpm 이하)")
+    coaching_message: str = Field(..., description="코치 상세 조언 메시지")
+
+# 심박수 구간 (Zone 1~5) 분포 DTO
+class HrZoneDistribution(BaseModel):
+    zone1_pct: float = Field(..., description="Zone 1 회복 (%)")
+    zone2_pct: float = Field(..., description="Zone 2 유산소 (%)")
+    zone3_pct: float = Field(..., description="Zone 3 템포 (%)")
+    zone4_pct: float = Field(..., description="Zone 4 역치 (%)")
+    zone5_pct: float = Field(..., description="Zone 5 무산소 (%)")
+    primary_zone_text: str = Field(..., description="주요 훈련 구간 요약 텍스트")
+
 class AnalyticsSummaryResponse(BaseModel):
     """통계 분석 메인 응답 DTO"""
     runner_id: int
@@ -75,4 +106,7 @@ class AnalyticsSummaryResponse(BaseModel):
     rolling_trends: List[RollingTrendPoint] = Field(default_factory=list)
     acwr: Optional[AcwrStatus] = None
     heatmap: Optional[HeatmapInsight] = None
-    garmin_analytics: Optional[GarminPacingInsight] = None
+    # 신규 필드 추가
+    coach_recommendation: Optional[CoachRecommendation] = None
+    hr_zones: Optional[HrZoneDistribution] = None
+    garmin_analytics: Optional[dict] = None

@@ -7,50 +7,30 @@ import Sidebar from '../components/layout/Sidebar';
 import StatCard from '../components/dashboard/StatCard';
 import { dashboardApi } from '../api/dashboardApi';
 import '../styles/Dashboard.css';
+import ErrorState from '../components/common/ErrorState';
+import { translateTrainingType } from '../constants/runningConstants';
+import { useDashboard } from '../hooks/useDashboard';
 
 export default function DashboardPage() {
 
-  // 데이터 상태 선언 
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { dashboardData, loading, error, refetchDashboard} = useDashboard();
 
-  const translateTrainingType = (code) => {
-    const types = { EASY: '조깅', TEMPO: '템포런', INTERVAL: '인터벌', LSD: 'LSD', RECOVERY: '회복런', RACE: '대회' };
-
-    return types[code] || code;
-  };
-
-  //  처음 열릴때 API 호출하는 react hook : uesEffect
-  useEffect(() => {
-    async function fetchDashboard() {
-      try {
-        setLoading(true);
-        const data = await dashboardApi.getMyDashboard();
-        if (!data) {
-          alert('사용자 정보를 찾을수 없습니다.');
-          localStorage.removeItem('accessToken');
-          window.location.href = '/';
-          return;
-        }
-        setDashboardData(data);
-      } catch (err) {
-        console.error('데이터 불러오는중 에러 발생 : ', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchDashboard();
-  }, []);
-
-
+  if (loading) return <div style={{ padding: '20px' }}>대시보드 정보를 불러오는 중...</div>;
+  
+  if (error) {
+      return (
+          <ErrorState
+              title="대시보드 정보를 불러올 수 없습니다"
+              message={error}
+              onRetry={fetchDashboard}
+          />
+      );
+  }
   return (
     <div className="dashboard-layout">
       <Sidebar />
       <main className="main-content">
-        {loading ? (
-          <div style={{ padding: '20px' }}>대시보드 정보를 불러오는 중...</div>
-        ) : (
+        {
           <>
             <header className="dashboard-header">
               <h1 className="dashboard-title">대시보드</h1>
@@ -141,7 +121,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </>
-        )}
+        }
       </main>
     </div>
   );

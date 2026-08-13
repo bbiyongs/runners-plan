@@ -208,3 +208,167 @@
   color: #6366f1;
   border-radius: 6px;
 }
+
+/* ==========================================
+   통계 대시보드 전용 유틸리티 & 그리드 클래스
+   ========================================== */
+
+/* 3열 균등 카드 그리드 */
+.card-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+/* 년/월 조회 픽커 박스 */
+.month-picker-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.month-picker-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.month-picker-input {
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+/* 탭 버튼 그룹 헤더 */
+.header-with-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tab-btn-group {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 여백 상단 유틸리티 */
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+/* ==========================================
+   RunForm 공통 폼 전용 스타일
+   ========================================== */
+.run-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.run-form-group {
+  margin-bottom: 12px;
+}
+
+.run-form-label {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: #475569;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.run-form-input,
+.run-form-select,
+.run-form-textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.run-form-input:focus,
+.run-form-select:focus,
+.run-form-textarea:focus {
+  border-color: #6366f1;
+}
+
+.duration-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.duration-input-num {
+  width: 65px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.run-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-form-cancel {
+  padding: 10px 18px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-form-submit {
+  padding: 10px 22px;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-form-submit.create {
+  background: #6366f1;
+}
+
+.btn-form-submit.edit {
+  background: #3b82f6;
+}

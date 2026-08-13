@@ -15,7 +15,9 @@ from app.analytics.models import (
     GarminLapDetail,
     GarminHrZoneItem,
     GarminPacingInsight,
-    AnalyticsSummaryResponse
+    AnalyticsSummaryResponse,
+    CoachRecommendation,
+    HrZoneDistribution
 )
 
 
@@ -95,6 +97,8 @@ class AnalyticsCalculator :
                 garmin_analytics=None
             )
 
+        acwr_status = self._calculate_acwr(df)
+
         return AnalyticsSummaryResponse(
             runner_id=self.runner_id,
             total_distance_km=round(float(df_target['distance_km'].sum()), 2),
@@ -103,6 +107,8 @@ class AnalyticsCalculator :
             rolling_trends=self._calculate_rolling_trends(df_target),
             acwr=self._calculate_acwr(df),
             heatmap=self._calculate_heatmap(df),
+            coach_recommendation=self._calculate_coach_recommendation(acwr_status),
+            hr_zones=self._calculate_hr_zones(df),
             garmin_analytics=None
         )
 
@@ -148,7 +154,7 @@ class AnalyticsCalculator :
         is_past_month = latest_period < today_period
 
         if is_past_month:
-             # 🟢 과거 완료된 달: 31일 데이터를 포함한 전체 월 100% 비교!
+             # 과거 완료된 달: 31일 데이터를 포함한 전체 월 100% 비교!
             max_day = latest_period.days_in_month
             current_mtd_df = current_month_df
             
@@ -170,54 +176,85 @@ class AnalyticsCalculator :
         # 이번달 MTD 데이터 집계
         current_dist = float(current_mtd_df['distance_km'].sum())
         current_pace = current_mtd_df['avg_pace_sec'].mean()
+        current_hr = current_mtd_df['avg_hr'].dropna().mean() # 평균 심박 추출
 
-        mom_dist_pct = None
-        mom_pace_diff = None
-        prev_dist = 0.0
+        # 심폐 효율성 지수 계산
+        current_eff = None
+        if pd.notna(current_pace) and current_pace > 0 and pd.notna(current_hr) and current_hr > 0:
+            current_speed_kmh = 3600.0 / current_pace
+            current_eff = (current_speed_kmh / current_hr) * 100.0
+
+        mom_dist_pct, mom_pace_diff, mom_hr_diff, mom_eff_pct = None, None, None, None
+        prev_dist, prev_hr = 0.0 , None
 
         if not prev_month_df.empty:
             prev_dist = float(prev_month_df['distance_km'].sum())
             prev_pace = prev_month_df['avg_pace_sec'].mean()
+            prev_hr = prev_month_df['avg_hr'].dropna().mean()
 
             if prev_dist > 0 :
                 mom_dist_pct = round(((current_dist - prev_dist)/prev_dist) * 100, 1)
             if pd.notna(current_pace) and pd.notna(prev_pace) :
                 mom_pace_diff = int(current_pace - prev_pace)
+            if pd.notna(current_hr) and pd.notna(prev_hr):
+                mom_hr_diff = int(current_hr - prev_hr) # 이면 심박 감소 (강화)
 
-        yoy_dist_pct = None
-        yoy_pace_diff = None
+                # 전월 심폐 효율성 및 변화율
+                if prev_pace > 0 and prev_hr > 0 and current_eff:
+                    prev_speed_kmh = 3600.0 / prev_pace
+                    prev_eff = (prev_speed_kmh / prev_hr) * 100.0
+                    if prev_eff > 0 : 
+                        mom_eff_pct = round(((current_eff - prev_eff) / prev_eff) * 100 , 1)
+
+        yoy_dist_pct, yoy_pace_diff, yoy_hr_diff, yoy_eff_pct = None, None, None, None
+        prev_year_dist = 0.0
 
         if not prev_year_df.empty:
             prev_year_dist = float(prev_year_df['distance_km'].sum())
             prev_year_pace = prev_year_df['avg_pace_sec'].mean()
+            prev_year_hr = prev_year_df['avg_hr'].dropna().mean()
 
             if prev_year_dist > 0:
                 yoy_dist_pct = round(((current_dist - prev_year_dist)/prev_year_dist) * 100, 1)
             if pd.notna(current_pace) and pd.notna(prev_year_pace):
                 yoy_pace_diff = int(current_pace - prev_year_pace)
+            if pd.notna(current_hr) and pd.notna(prev_year_hr):
+                yoy_hr_diff = int(current_hr - prev_year_hr)
+                if prev_year_pace > 0 and prev_year_hr > 0 and current_eff:
+                    prev_year_speed_kmh = 3600.0 / prev_year_pace
+                    prev_year_eff = (prev_year_speed_kmh / prev_year_hr) * 100.0
+                    if prev_year_eff > 0 :
+                        yoy_eff_pct = round(((current_eff - prev_year_eff)/ prev_year_eff) * 100, 1)
 
         # MTD 맞춤형 사용자 인사이트 구성
         insight_parts = []
         if mom_dist_pct is not None:
             sign = "+" if mom_dist_pct >= 0 else ""
             insight_parts.append(f"지난달 {max_day}일까지 대비 이번 달 {max_day}일까지 거리는 {sign}{mom_dist_pct}% 변화했습니다.")
-        if mom_pace_diff is not None:
-            if mom_pace_diff < 0:
-                insight_parts.append(f"페이스는 {abs(mom_pace_diff)}초 단축되었습니다! 🏆")
-            elif mom_pace_diff > 0:
-                insight_parts.append(f"페이스는 {mom_pace_diff}초 증가했습니다.")
-        text = " ".join(insight_parts) if insight_parts else "데이터를 축적하면 MTD 성과 인사이트가 제공됩니다."
+        if mom_hr_diff is not None : 
+            if mom_hr_diff < 0 :
+                insight_parts.append(f"평균 심박수가 {abs(mom_hr_diff)}bpm 낮아져 심폐 지구력이 강화되엇습니다.")
+            elif mom_hr_diff > 0 :
+                insight_parts.append(f"평균 심박수가 {mom_hr_diff}bpm 상승하였습니다.")
+
+        text = " ".join(insight_parts) if insight_parts else "데이터를 축적하면 심폐 성과 인사이트가 제공됩니다."
         return GrowthInsight(
             mom_distance_change_pct=mom_dist_pct,
             mom_pace_change_sec=mom_pace_diff,
             yoy_distance_change_pct=yoy_dist_pct,
             yoy_pace_change_sec=yoy_pace_diff,
-            # 원본 수치 추가 전달
+            mom_hr_change_bpm=mom_hr_diff,
+            mom_efficiency_change_pct=mom_eff_pct,
+            yoy_hr_change_bpm=yoy_hr_diff,
+            yoy_efficiency_change_pct=yoy_eff_pct,
+            # 💡 선택한 월의 순수 운동 횟수 전달 (예: 8회)
+            current_month_run_count=len(current_mtd_df),
+            current_avg_hr=int(current_hr) if pd.notna(current_hr) else None,
+            prev_month_avg_hr=int(prev_hr) if pd.notna(prev_hr) else None,
             current_mtd_distance_km=round(current_dist, 1),
-            prev_month_mtd_distance_km=round(prev_dist, 1) if 'prev_dist' in locals() else None,
-            prev_year_mtd_distance_km=round(prev_year_dist, 1) if 'prev_year_dist' in locals() else None,
+            prev_month_mtd_distance_km=round(prev_dist, 1) if not prev_month_df.empty else None,
+            prev_year_mtd_distance_km=round(prev_year_dist, 1) if not prev_year_df.empty else None,
             max_day=max_day,
-
             insight_text=text
         )
 
@@ -227,9 +264,12 @@ class AnalyticsCalculator :
             return []
 
         all_dates = pd.date_range(start=df['run_date_dt'].min(), end=df['run_date_dt'].max(), freq='D')
+
+        # avg_hr 집계 추가
         daily_df = df.groupby('run_date_dt').agg({
             'distance_km': 'sum',
-            'avg_pace_sec': 'mean'
+            'avg_pace_sec': 'mean',
+            'avg_hr': 'mean'
         }).reindex(all_dates, fill_value=0.0).reset_index()
 
         daily_df.rename(columns={'index':'run_date'}, inplace=True)
@@ -241,7 +281,8 @@ class AnalyticsCalculator :
             distance_km=round(float(row['distance_km']), 2),
             avg_pace_sec=int(row['avg_pace_sec']) if pd.notna(row['avg_pace_sec']) and row['avg_pace_sec'] > 0 else None,
             rolling_7d_distance=round(float(row['rolling_7d']), 2),
-            rolling_30d_distance=round(float(row['rolling_30d']), 2)
+            rolling_30d_distance=round(float(row['rolling_30d']), 2),
+            avg_hr=int(row['avg_hr']) if pd.notna(row['avg_hr']) and row['avg_hr'] > 0 else None
         ) for _, row in daily_df.tail(60).iterrows()]
 
     def _calculate_acwr(self, df: pd.DataFrame) -> Optional[AcwrStatus]:
@@ -254,8 +295,20 @@ class AnalyticsCalculator :
             df_copy = df.copy()
             df_copy['pure_date'] = pd.to_datetime(df_copy['run_date']).dt.normalize()
 
+            # 심박도 강도 가중치 연산 
+            # avg_hr 이 있는 경우 (avg_hr / 140.0) 없는 경우 1.0 적용
+            def calc_intensity(row) :
+                hr = row.get('avg_hr')
+                if pd.notna(hr) and hr > 0:
+                    return round(float(hr) / 140.0, 2)
+                return 1.0
+
+            df_copy['intensity_factor'] = df_copy.apply(calc_intensity, axis=1)
+
+            df_copy['weighted_distance'] = df_copy['distance_km'] * df_copy['intensity_factor']
+
             # 동일 일자 러닝 합계 
-            daily_sum = df_copy.groupby('pure_date')['distance_km'].sum()
+            daily_sum = df_copy.groupby('pure_date')['weighted_distance'].sum()
 
             if daily_sum.empty:
                 return None
@@ -265,13 +318,12 @@ class AnalyticsCalculator :
             all_dates = pd.date_range(start=min_date, end=max_date, freq='D')
 
             # 연속 날짜로 재인덱싱 (운동 없는날 o )
-            daily_df = daily_sum.reindex(all_dates, fill_value=0.0).to_frame(name='distance_km')
+            daily_df = daily_sum.reindex(all_dates, fill_value=0.0).to_frame(name='weighted_distance')
 
             
             # 이동평균 연산 
-            daily_df['acute_ewma'] = daily_df['distance_km'].ewm(span=7, adjust=False).mean()
-
-            daily_df['chronic_ewma'] = daily_df['distance_km'].ewm(span=28, adjust=False).mean()
+            daily_df['acute_ewma'] = daily_df['weighted_distance'].ewm(span=7, adjust=False).mean()
+            daily_df['chronic_ewma'] = daily_df['weighted_distance'].ewm(span=28, adjust=False).mean()
 
             # 가장 최근 날짜의 ewma 수치
             latest_row = daily_df.iloc[-1]
@@ -327,27 +379,50 @@ class AnalyticsCalculator :
             return None
 
         weekday_map ={0: '월', 1: '화', 2: '수', 3: '목', 4: '금', 5: '토', 6: '일'}
-        df['weekday'] = df['run_datetime'].dt.weekday.map(weekday_map)
+        df['weekday_num'] = df['run_datetime'].dt.weekday
+        df['weekday'] = df['weekday_num'].map(weekday_map)
         df['time_slot'] = df['run_datetime'].dt.hour.apply(get_time_slot)
 
-        grouped = df.groupby(['weekday', 'time_slot']).agg({'run_record_id' : 'count', 'avg_pace_sec' : 'mean'}).reset_index()
+        # 요일별 러닝 횟수 미리 계산 (비중)
+        weekday_totals = df.groupby('weekday')['run_record_id'].count().to_dict()
 
+        grouped = df.groupby(['weekday_num', 'weekday' , 'time_slot']).agg({
+                'run_record_id' : 'count', 
+                'avg_pace_sec' : 'mean'
+            }).reset_index()
+
+        # 안전필터 : 최소 5회 이상 달린 유의미한 시간대
+        grouped_filltered = grouped[grouped['run_record_id'] >= 5]
+        if not grouped_filltered.empty :
+            grouped = grouped_filltered.sort_values(by='avg_pace_sec', ascending=True)
+        else : 
+            grouped = grouped.sort_values(by='avg_pace_sec', ascending=True)
+        
         points = []
         best_row = None
         min_pace = float('inf')
 
         for _, row in grouped.iterrows():
             pace = int (row['avg_pace_sec']) if pd.notna(row['avg_pace_sec']) and row['avg_pace_sec'] > 0 else None
-            points.append(HeatmapPoint(
-                weekday=row['weekday'],
-                time_slot=row['time_slot'],
-                run_count=int(row['run_record_id']),
-                avg_pace_sec=pace                
-            ))
 
-            if pace and pace < min_pace :
-                min_pace = pace
-                best_row = row
+            if pace is not None:
+                w_day = row['weekday']
+                w_total = weekday_totals.get(w_day, int(row['run_record_id']))
+                r_count = int(row['run_record_id'])
+                s_pct = int(round((r_count/ w_total)*100)) if w_total > 0 else 100
+
+                points.append(HeatmapPoint(
+                    weekday=w_day,
+                    time_slot=row['time_slot'],
+                    run_count=r_count,
+                    weekday_total_runs=w_total,
+                    slot_pct=s_pct,
+                    avg_pace_sec=pace                
+                ))
+
+                if pace and pace < min_pace :
+                    min_pace = pace
+                    best_row = row
 
         if best_row is not None:
             m = min_pace // 60
@@ -357,3 +432,79 @@ class AnalyticsCalculator :
             best_slot_text = "다양한 시간대에 운동하시면 최적의 러닝 핫스팟이 연산됩니다."
 
         return HeatmapInsight(best_slot_text=best_slot_text, points= points)
+
+    def _calculate_coach_recommendation(self, acwr: Optional[AcwrStatus]) -> Optional[CoachRecommendation]:
+        """ 실시간 acwr 부하 기반 코칭 액션"""
+        if not acwr or acwr.acwr_ratio == 0 :
+            return CoachRecommendation(
+                action_title="5km 회복 조깅 훈련 추천 🏃‍♂️",
+                target_pace_text="06'00\"/km 전후",
+                target_hr_text="145 bpm 이하",
+                coaching_message="기록 데이터가 축적되면 더 정밀한 맞춤 코칭 플랜이 연산됩니다."
+            )
+
+        ratio = acwr.acwr_ratio
+
+        if ratio > 1.4:
+            return CoachRecommendation(
+                action_title="내일 완전 휴식 권장",
+                target_pace_text="휴식 (러닝 자제)",
+                target_hr_text="120 bpm 이하 (일상)",
+                coaching_message=f"EWMA 피로 부하 지수가 {ratio}로 급증했습니다! 관절 및 근육 부상을 방지하기 위해 내일은 완전 휴식을 추천합니다."
+            )
+        elif 1.25 < ratio <= 1.4:
+            return CoachRecommendation(
+                action_title="3km~5km 가벼운 회복 조깅",
+                target_pace_text="06'15\"/km ~ 06'45\"/km",
+                target_hr_text="140 bpm 이하 (Zone 1~2)",
+                coaching_message=f"피로도가 누적되는 주의 단계입니다 (ACWR: {ratio}). 무리한 속도를 피하고 젖산 제거를 위한 가벼운 회복 조깅을 진행하세요."
+            )
+        elif 0.8 <= ratio <= 1.25:
+            return CoachRecommendation(
+                action_title="5km~8km 유산소 템포 러닝",
+                target_pace_text="05'20\"/km ~ 05'50\"/km",
+                target_hr_text="145 ~ 158 bpm (Zone 2~3)",
+                coaching_message=f"이상적인 훈련 비율(ACWR: {ratio})을 유지 중입니다! 심폐 지구력 강화를 위한 유산소 템포 러닝을 추천합니다."
+            )
+        else:
+            return CoachRecommendation(
+                action_title="8km~10km 지구력 / 인터벌 훈련 추천",
+                target_pace_text="05'00\"/km ~ 05'30\"/km",
+                target_hr_text="160 bpm 이상 (Zone 3~4)",
+                coaching_message=f"피로도가 충분히 회복되었습니다 (ACWR: {ratio}). 강도를 살짝 올려 페이스를 높여보는 훈련에 도전해 보세요!"
+            )
+
+    def _calculate_hr_zones(self, df: pd.DataFrame) -> Optional[HrZoneDistribution]:
+        """ 심박수 구간 """
+        if df.empty or 'avg_hr' not in df.columns:
+            return None
+
+        valid_hrs = df['avg_hr'].dropna()
+        valid_hrs = valid_hrs[valid_hrs > 0]
+
+        if valid_hrs.empty :
+            return None
+
+        total_count = len(valid_hrs)
+
+        z1 = len(valid_hrs[valid_hrs < 135])
+        z2 = len(valid_hrs[(valid_hrs >= 135) & (valid_hrs < 151)])
+        z3 = len(valid_hrs[(valid_hrs >= 151) & (valid_hrs < 166)])
+        z4 = len(valid_hrs[(valid_hrs >= 166) & (valid_hrs < 179)])
+        z5 = len(valid_hrs[valid_hrs >= 179])
+
+        z1_pct = round((z1 / total_count) * 100, 1)
+        z2_pct = round((z2 / total_count) * 100, 1)
+        z3_pct = round((z3 / total_count) * 100, 1)
+        z4_pct = round((z4 / total_count) * 100, 1)
+        z5_pct = round((z5 / total_count) * 100, 1)
+        zone_pcts = {'Zone 1 (회복)': z1_pct, 'Zone 2 (유산소)': z2_pct, 'Zone 3 (템포)': z3_pct, 'Zone 4 (역치)': z4_pct, 'Zone 5 (무산소)': z5_pct}
+        primary_zone = max(zone_pcts, key=zone_pcts.get)
+        return HrZoneDistribution(
+            zone1_pct=z1_pct,
+            zone2_pct=z2_pct,
+            zone3_pct=z3_pct,
+            zone4_pct=z4_pct,
+            zone5_pct=z5_pct,
+            primary_zone_text=f"주로 '{primary_zone}' 구간({zone_pcts[primary_zone]}%)에서 훈련하셨습니다."
+        )

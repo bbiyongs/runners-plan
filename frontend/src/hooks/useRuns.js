@@ -6,6 +6,7 @@ import { garminApi } from '../api/garminApi';
 export function useRuns() {
     const [allRuns, setAllRuns] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [syncingGarmin, setSyncingGarmin] = useState(false); // 가민 동기화 로딩 상태 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -31,11 +32,13 @@ export function useRuns() {
     const fetchRuns = async () => {
         try {
             setLoading(true);
+            setError(null);
             const data = await runApi.getMyRunRecords(filter.startDate, filter.endDate);
             setAllRuns(data || []);
             setVisibleCount(PAGE_SIZE); // 검색 조건 변경 시 초기 10개로 리셋
         } catch (err) {
             console.error('러닝기록 로드 실패:', err);
+            setError('러닝 기록 목록을 불러오는 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
@@ -181,5 +184,6 @@ export function useRuns() {
         createRun,
         updateRun,
         deleteRun,
+        error,
     };
 }
