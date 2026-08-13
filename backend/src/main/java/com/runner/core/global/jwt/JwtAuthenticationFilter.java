@@ -39,6 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // securityContextHolder 에 인증 객체 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("Security Context에 runnerId={} 인증 정보 저장 완료", runnerId);
+
+            // 활동시 30분 연장된 새 토큰 생성 및 응답
+            String refreshedToken = jwtTokenProvider.createAccessToken(runnerId, "runner");
+            response.setHeader("Authorization", "Bearer " + refreshedToken);
         }
 
         filterChain.doFilter(request, response);

@@ -90,6 +90,59 @@ class GarminDataParser:
             elif any(k in w_key for k in ["CLEAR", "SUN", "FAIR"]):
                 weather_code = "SUNNY"
 
+        # rpe 파싱  및 자동추정 로직 
+        # 💡 가민 실제 RPE 필드: directWorkoutRpe (예: 20 -> 2점) 및 perceivedExertion 파싱
+        raw_rpe = (
+            raw.get("directWorkoutRpe") 
+            or raw.get("perceivedExertion") 
+            or raw.get("userPerceivedExertion")
+        )
+        
+        # summaryDTO 내부 객체가 포함되어 있는 경우 추가 검사
+        raw_rpe = raw.get("perceivedExertion") or raw.get("directWorkoutRpe")
+        calculated_rpe = None
+
+        # 수동 입력 RPE 가 JSON 에 존재하는 경우 
+        if raw_rpe is not None:
+            try:
+                rpe_val = float(raw_rpe)
+                if rpe_val >= 10:
+                    rpe_val = round(rpe_val/10.0)
+                calculated_rpe = max(1, min(10, int(rpe_val)))
+            except (ValueError, TypeError):
+                calculated_rpe = None
+
+        # 수동 RPE가 없을 경우: get_activities 기본 항목인 aerobicTrainingEffect 지표로 RPE (1~10) 자동 계산
+        # RPE 는 상세 정보를 호출해와야 가능한 값이라 따로 계산 
+        # 유산소 훈련 효과 지표 (0.0 ~ 5.0 수치) - aerobicTrainingEffect
+        if calculated_rpe is None:
+            # None 방어 구문 (None이 들어오면 0.0으로 안전 변환)
+            val_aerobic = raw.get("aerobicTrainingEffect")
+            val_anaerobic = raw.get("anaerobicTrainingEffect")
+            val_hr = raw.get("averageHR")
+
+            aerobic_eff = float(val_aerobic) if val_aerobic is not None else 0.0
+            anaerobic_eff = float(val_anaerobic) if val_anaerobic is not None else 0.0
+            avg_hr = float(val_hr) if val_hr is not None else 0.0
+
+            # 유산소 훈련 효과 기준점수 ( 0 - 5 -> 0 - 7 스케일)
+            score = aerobic_eff * 1.4
+
+            # 심박수 기반 미세 가중치 ( 130 - 160 구간에 0.0 - 1.5 가산)
+            if avg_hr > 130:
+                hr_bonus = min(1.5, (avg_hr-130) * 0.05)
+                score += hr_bonus
+            elif avg_hr > 0 and avg_hr < 120:
+                score -= 0.5  # 심박이 낮으면 -0.5 점
+
+            # 무산소 자극이 있는경우 최대 1.0 추가
+            if anaerobic_eff > 1.0 : 
+                score += min(1.0, (anaerobic_eff - 1.0) * 0.5)
+
+            # 반올림 해서 1 - 10 사이 정수로 안착 
+            calculated_rpe = max(1, min(10, round(score)))
+
+
         # 💡 만약 가민에 기상 키가 아예 없는 경우 None 반환
         logger.info(f"연동중 날씨  변환 코드 : {weather_code} 가민 코드 : {w_key}")
 
@@ -106,7 +159,7 @@ class GarminDataParser:
             max_hr=raw.get("maxHR"),
             calories=int(raw.get("calories", 0)),
             # 추가 파싱
-            rpe=raw.get("perceivedExertion"),
+            rpe=calculated_rpe,
             aerobic_effect=raw.get("aerobicTrainingEffect"),
             anaerobic_effect=raw.get("anaerobicTrainingEffect"),
             # 기상데이터

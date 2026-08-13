@@ -25,7 +25,16 @@ axiosInstance.interceptors.request.use(
 
 // 백엔드에서 응답 받은 직후 실행 , 응답 인터셉트
 axiosInstance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // 백엔드가 보내준 새 토큰 헤더 
+        const newToken = response.headers['authorization'];
+        if(newToken) {
+            const tokenValue = newToken.replace('Bearer ', '');
+            localStorage.setItem('accessToken', tokenValue); // 30분 타이머 리셋
+        }
+
+        return response;
+    },
     (error) => {
         if(error.response && error.response.status === 401) {
             localStorage.removeItem('accessToken');
