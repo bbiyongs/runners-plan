@@ -43,7 +43,9 @@ public class RunnerService {
                     .durationSec(act.getDurationSec())
                     .avgPaceSec(act.getAvgPaceSec())
                     .formattedAvgPace(DashboardResponse.formatPace(act.getAvgPaceSec()))
-                    .trainingTypeCode(act.getTrainingTypeCode())
+                    .conditionScore(act.getConditionScore())
+                    .painAreaCode(act.getPainAreaCode())
+                    .painLevel(act.getPainLevel())
                     .memo(act.getMemo())
                     .build()).collect(Collectors.toList());
 

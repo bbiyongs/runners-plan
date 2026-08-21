@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runner.core.auth.mapper.RefreshTokenMapper">
+
+    <!-- 신규 발급시 insert , 존재 시 update -->
+    <insert id="upsertRefreshToken" >
+        INSERT INTO runner_refresh_token (runner_id, refresh_token, updated_at)
+        values (#{runnerId}, #{refreshToken}, NOW())
+        ON CONFLICT(runner_id)
+        DO UPDATE SET
+           refresh_token = #{refreshToken},
+           updated_at = NOW()
+    </insert>
+
+    <!-- 러너 ID 저장된 리프레시 토큰 조회 -->
+    <select id="findByRunnerId" resultType="RunnerRefreshToken" >
+        SELECT
+            runner_id,
+            refresh_token,
+            created_at,
+            updated_at
+          FROM runner_refresh_token
+         WHERE runner_id = #{runnerId}
+    </select>
+
+    <delete id="deleteByRunnerId" >
+        DELETE  FROM runner_refresh_token
+         WHERE runner_id = #{runnerId}
+    </delete>
+</mapper>

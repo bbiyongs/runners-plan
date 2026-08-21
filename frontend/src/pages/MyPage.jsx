@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from '../components/layout/Sidebar';
-import GarminConnectModal from "../components/dashboard/GarminConnectModal";
-import { garminApi } from "../api/garminApi";
+import Sidebar from '@/components/layout/Sidebar';
+import GarminConnectModal from "@/components/dashboard/GarminConnectModal";
+import { garminApi } from "@/api/garminApi";
 import { ShieldCheck, RefreshCw, Link as LinkIcon, User } from "lucide-react";
-import '../styles/MyPage.css';
-
-// JWT accessToken 에서 runnerId 를 파싱
-const getRunnerIdFromToken = () => {
-    const token = localStorage.getItem('accessToken');
-    if(!token) return null;
-    try {
-        const base64Payload = token.split('.')[1];
-        const payload = JSON.parse(atob(base64Payload));
-        // jwt payload 에 포함된 runnerId
-        return payload.runnerId || payload.sub || null;
-    } catch (e) {
-        console.error("JWT 토큰 파싱 실패 : ", e);
-        return null;
-    }
-}
+import '@/styles/MyPage.css';
+import { useAuth } from '@/context/AuthContext';
 
 export default function MyPage() {
+    const { token } = useAuth();
+
+    // 메모리 jwt 토큰에서 runnerId 추출
+    const getRunnerId = () => {
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.runnerId || payload.sub || null;
+        } catch {
+            return null;
+        }
+    }
+
+    const currentRunnerId = getRunnerId();
+
     // JWT 토큰에서 runnerId 추출
     const getStoredUser = () => {
         try{
@@ -35,7 +36,7 @@ export default function MyPage() {
     }
 
     const storedUser = getStoredUser();
-    const runnerId = getRunnerIdFromToken() || storedUser.runner_id || storedUser.id;
+    const runnerId = currentRunnerId || storedUser.runner_id || storedUser.id;
 
     const [isGarminModalOpen, setIsGarminModalOpen] = useState(false);
     const [garminStatus, setGarminStatus] = useState({
@@ -48,9 +49,11 @@ export default function MyPage() {
 
     const fetchStatus = async () => {
         if (!runnerId) {
-            alert('사용자 정보를 찾을수 없습니다. 다시 로그인해주세요. ');
-            localStorage.removeItem('accessToken');
-            window.location.href = '/';
+            // alert('사용자 정보를 찾을수 없습니다. 다시 로그인해주세요. ');
+            // localStorage.removeItem('accessToken');
+            // window.location.href = '/';
+            // return;
+            console.warn('runnerId 를 찾을 수 없습니다.');
             return;
         }
         try {
@@ -83,7 +86,7 @@ export default function MyPage() {
                     {/* 프로필 요약 카드 */}
                     <div className="profile-card">
                         <div className="profile-avatar">
-                            <User size={40} color="#6366f1" />
+                            <User size={36} color="#2e7d32" />
                         </div>
                         <div className="profile-info">
                             <h2>러너 프로필</h2>

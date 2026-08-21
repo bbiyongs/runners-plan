@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useGarminConnect } from "../../hooks/useGarminConnect";
-import { garminApi } from "../../api/garminApi";
+import { useGarminConnect } from "@/hooks/useGarminConnect";
+import { garminApi } from "@/api/garminApi";
 import '../../styles/GarminConnectModal.css';
 
 export default function GarminConnectModal({ isOpen, onClose, runnerId = 1, onSyncSuccess }) {
@@ -21,8 +21,8 @@ export default function GarminConnectModal({ isOpen, onClose, runnerId = 1, onSy
     if (!isOpen) return null;
 
     return (
-        <div className="garmin-modal-backdrop" onClick={onClose}>
-            <div className="garmin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="garmin-modal-backdrop">
+            <div className="garmin-modal-content">
                 <div className="garmin-modal-header">
                     <div className="garmin-title-group">
                         <span className="garmin-badge">GARMIN CONNECT</span>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runner.core.shoe.mapper.RunningShoesMapper">
+
+    <sql id="shoeColumns">
+        shoe_id             AS shoeId,
+        runner_id           AS runnerId,
+        shoe_name           AS shoeName,
+        brand,
+        max_distance_km     AS maxDistanceKm,
+        current_distance_km AS currentDistanceKm,
+        is_default          AS isDefault,
+        is_retired          AS isRetired,
+        purchased_date      AS purchasedDate,
+        created_at          AS createdAt,
+        updated_at          AS updatedAt
+    </sql>
+
+    <!-- 신규 러닝화 등록 -->
+    <insert id="insertShoe" parameterType="com.runner.core.shoe.domain.RunningShoes" useGeneratedKeys="true"
+            keyProperty="shoeId" keyColumn="shoe_id">
+        INSERT INTO RUNNING_SHOES (
+            runner_id, shoe_name, brand, max_distance_km, current_distance_km,
+            is_default, is_retired, purchased_date, created_at
+        ) VALUES (
+            #{runnerId}, #{shoeName}, #{brand}, #{maxDistanceKm}, #{currentDistanceKm},
+            #{isDefault}, #{isRetired}, #{purchasedDate}, CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 러닝화 단건 조회 -->
+    <select id="findByIdAndRunnerId" resultType="com.runner.core.shoe.domain.RunningShoes">
+        SELECT
+            <include refid="shoeColumns"/>
+        FROM RUNNING_SHOES
+        WHERE shoe_id = #{shoeId} AND runner_id = #{runnerId}
+    </select>
+
+    <!-- 러너의 러닝화 목록 조회 -->
+    <select id="findByRunnerId" resultType="com.runner.core.shoe.domain.RunningShoes">
+        SELECT
+            <include refid="shoeColumns"/>
+        FROM RUNNING_SHOES
+        WHERE runner_id = #{runnerId}
+        <if test="!includeRetired">
+            AND is_retired = FALSE
+        </if>
+        ORDER BY is_default DESC, is_retired ASC, created_at DESC
+    </select>
+
+    <!-- 러닝화 정보 수정 -->
+    <update id="updateShoe" parameterType="com.runner.core.shoe.domain.RunningShoes">
+        UPDATE RUNNING_SHOES
+        SET
+            shoe_name           = #{shoeName},
+            brand               = #{brand},
+            purchased_date      = #{purchasedDate},
+            max_distance_km     = #{maxDistanceKm},
+            current_distance_km = #{currentDistanceKm},
+            is_default          = #{isDefault},
+            is_retired          = #{isRetired},
+            updated_at          = CURRENT_TIMESTAMP
+        WHERE shoe_id = #{shoeId} AND runner_id = #{runnerId}
+    </update>
+
+    <!-- 기존 기본 러닝화 일괄 해제 -->
+    <update id="clearDefaultShoes">
+        UPDATE RUNNING_SHOES
+        SET is_default = FALSE, updated_at = CURRENT_TIMESTAMP
+        WHERE runner_id = #{runnerId} AND is_default = TRUE
+    </update>
+
+    <!-- 특정 러닝화 기본 설정 -->
+    <update id="setDefaultShoe">
+        UPDATE RUNNING_SHOES
+        SET is_default = TRUE, updated_at = CURRENT_TIMESTAMP
+        WHERE shoe_id = #{shoeId} AND runner_id = #{runnerId}
+    </update>
+
+    <!-- 러닝화 은퇴 처리 (기본 해제 및 은퇴 플래그 설정) -->
+    <update id="retireShoe">
+        UPDATE RUNNING_SHOES
+        SET is_retired = TRUE, is_default = FALSE, updated_at = CURRENT_TIMESTAMP
+        WHERE shoe_id = #{shoeId} AND runner_id = #{runnerId}
+    </update>
+
+    <!-- 러닝화 거리 가산/차감 -->
+    <update id="updateDistance">
+        UPDATE RUNNING_SHOES
+        SET
+            current_distance_km = GREATEST(0.00, current_distance_km + #{deltaDistanceKm}),
+            updated_at          = CURRENT_TIMESTAMP
+        WHERE shoe_id = #{shoeId}
+    </update>
+
+    <!-- 특정 날짜 이후 러너의 총 달린 거리 합산 (프리뷰 계산) -->
+    <select id="calculatePeriodDistance" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(distance_km), 0.0)
+        FROM RUN_RECORD
+        WHERE runner_id = #{runnerId}
+        <if test="purchasedDate != null">
+            AND run_date &gt;= #{purchasedDate}
+        </if>
+    </select>
+
+</mapper>

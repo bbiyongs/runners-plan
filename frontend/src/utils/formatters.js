@@ -1,8 +1,8 @@
 // 초를 x시간y분z초 / y분z초 로 변환
 export function formatDuration(durationSec) {
-    if(durationSec == null) return '-';
-    const hours = Math.floor(durationSec/3600);
-    const minutes = Math.floor((durationSec %3600) /60 );
+    if (durationSec == null) return '-';
+    const hours = Math.floor(durationSec / 3600);
+    const minutes = Math.floor((durationSec % 3600) / 60);
     const seconds = durationSec % 60;
 
     if (hours > 0) {
@@ -12,20 +12,22 @@ export function formatDuration(durationSec) {
     return `${minutes}분 ${seconds}초`;
 }
 
-export function getRpeLabel(rpe) {
-    if(!rpe) return '-';
-    const label = {
-        1: '1 (매우 쉬움)',
-        2: '2 (쉬움)',
-        3: '3 (보통)',
-        4: '4 (약간 힘듦)',
-        5: '5 (힘듦)',
-        6: '6 (힘듦+)',
-        7: '7 (매우 힘듦)',
-        8: '8 (매우 힘듦+)',
-        9: '9 (최고 힘듦)',
-        10: '10 (한계 도달)',
-    }; 
+// [수정 코드]
+export function getConditionLabel(score) {
+    const map = {
+        1: '무거움 (1점)',
+        2: '보통 (2점)',
+        3: '상쾌함 (3점)'
+    };
+    return map[score] || '보통 (2점)';
+}
 
-    return label[rpe] || `${rpe}`;
+export function getPainLevelLabel(level) {
+    const map = {
+        0: '0 - 없음 (정상)',
+        1: '1 - 뻐근함',
+        2: '2 - 불편함',
+        3: '3 - 심함'
+    };
+    return map[level] || '0 - 없음';
 }

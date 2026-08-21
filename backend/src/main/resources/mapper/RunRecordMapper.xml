@@ -6,14 +6,17 @@
     <sql id="runRecordColumns">
         run_record_id      AS runRecordId,
         runner_id          AS runnerId,
+        shoe_id            AS shoeId,
         run_datetime       AS runDatetime,
         run_date           AS runDate,
         duration_sec       AS durationSec,
         distance_km        AS distanceKm,
         avg_pace_sec       AS avgPaceSec,
         avg_hr             AS avgHr,
-        training_type_code AS trainingTypeCode,
-        rpe,
+        max_hr             AS maxHr,
+        condition_score    AS conditionScore,
+        pain_area_code     AS painAreaCode,
+        pain_level         AS painLevel,
         temperature,
         humidity,
         weather_code       AS weatherCode,
@@ -26,13 +29,13 @@
     <insert id="insertRunRecord" parameterType="RunRecord" useGeneratedKeys="true" keyProperty="runRecordId"
     keyColumn="run_record_id">
         INSERT INTO RUN_RECORD (
-            runner_id, run_datetime, run_date, duration_sec, distance_km,
-            avg_pace_sec, avg_hr, training_type_code, rpe, temperature,
-            humidity, weather_code, memo, created_at
+            runner_id, shoe_id, run_datetime, run_date, duration_sec, distance_km,
+            avg_pace_sec, avg_hr, max_hr, condition_score, pain_area_code, pain_level,
+            temperature, humidity, weather_code, memo, created_at
         ) VALUES (
-             #{runnerId}, #{runDatetime}, #{runDate}, #{durationSec}, #{distanceKm},
-             #{avgPaceSec}, #{avgHr}, #{trainingTypeCode}, #{rpe}, #{temperature},
-             #{humidity}, #{weatherCode}, #{memo}, CURRENT_TIMESTAMP
+             #{runnerId}, #{shoeId}, #{runDatetime}, #{runDate}, #{durationSec}, #{distanceKm},
+             #{avgPaceSec}, #{avgHr}, #{maxHr}, #{conditionScore}, #{painAreaCode}, #{painLevel},
+             #{temperature}, #{humidity}, #{weatherCode}, #{memo}, CURRENT_TIMESTAMP
          )
     </insert>
 
@@ -60,14 +63,17 @@
     <update id="updateRunRecord" parameterType="RunRecord">
         UPDATE RUN_RECORD
         SET
+            shoe_id            = #{shoeId},
             run_datetime       = #{runDatetime},
             run_date           = #{runDate},
             duration_sec       = #{durationSec},
             distance_km        = #{distanceKm},
             avg_pace_sec       = #{avgPaceSec},
             avg_hr             = #{avgHr},
-            training_type_code = #{trainingTypeCode},
-            rpe                = #{rpe},
+            max_hr             = #{maxHr},
+            condition_score    = #{conditionScore},
+            pain_area_code     = #{painAreaCode},
+            pain_level         = #{painLevel},
             temperature        = #{temperature},
             humidity           = #{humidity},
             weather_code       = #{weatherCode},

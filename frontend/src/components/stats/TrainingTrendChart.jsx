@@ -38,8 +38,8 @@ const TrainingTrendChart = ({ data }) => {
                     <Bar yAxisId="left" dataKey="distance_km" name="일별 거리" fill="#3b82f6" opacity={0.6} radius={[4, 4, 0, 0]} />
 
                     {/* 이동평균 Line */}
-                    <Line yAxisId="left" type="monotone" dataKey="rolling_7d_distance" name="7일 이동평균" stroke="#10b981" strokeWidth={2} dot={false} />
-                    <Line yAxisId="left" type="monotone" dataKey="rolling_30d_distance" name="30일 이동평균" stroke="#6366f1" strokeWidth={2} dot={false} />
+                    <Line yAxisId="left" type="monotone" dataKey="rolling_7d_distance" name="7일 이동평균" stroke="#52b788" strokeWidth={2} dot={false} />
+                    <Line yAxisId="left" type="monotone" dataKey="rolling_30d_distance" name="30일 이동평균" stroke="#2e7d32" strokeWidth={2} dot={false} />
 
                     {/* 💡 심박수 추이 Line (connectNulls + 빨간 점 표시로 시각화 보완!) */}
                     <Line

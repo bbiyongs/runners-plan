@@ -80,7 +80,9 @@
             distance_km         AS distanceKm,
             duration_sec        AS durationSec,
             avg_pace_sec        AS avgPaceSec,
-            training_type_code  AS trainingTypeCode,
+            condition_score     AS conditionScore,
+            pain_area_code      AS painAreaCode,
+            pain_level          AS painLevel,
             memo
         FROM RUN_RECORD
         WHERE runner_id = #{runnerId}

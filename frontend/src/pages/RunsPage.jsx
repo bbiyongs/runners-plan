@@ -1,14 +1,14 @@
 // src/pages/RunsPage.jsx
 import React from 'react';
 import { Plus, Trash2, Filter, Heart, Eye, ChevronDown, RefreshCw } from 'lucide-react';
-import Sidebar from '../components/layout/Sidebar';
-import RunCreateModal from '../components/dashboard/RunCreateModal';
-import RunDetailModal from '../components/dashboard/RunDetailModal';
-import { useRuns } from '../hooks/useRuns';
-import { formatDuration, getRpeLabel } from '../utils/formatters';
-import '../styles/RunsPage.css';
-import ErrorState from '../components/common/ErrorState';
-import { translateTrainingType } from '../constants/runningConstants';
+import Sidebar from '@/components/layout/Sidebar';
+import RunCreateModal from '@/components/dashboard/RunCreateModal';
+import RunDetailModal from '@/components/dashboard/RunDetailModal';
+import { useRuns } from '@/hooks/useRuns';
+import { formatDuration } from '@/utils/formatters';
+import '@/styles/RunsPage.css';
+import ErrorState from '@/components/common/ErrorState';
+import { translateCondition, translatePainArea, translatePainLevel } from '@/constants/runningConstants';
 
 export default function RunsPage() {
   // 💡 비즈니스 로직은 custom hook 하나로 깔끔하게 호출!
@@ -109,9 +109,9 @@ export default function RunsPage() {
                     <th>거리</th>
                     <th>운동 시간</th>
                     <th>평균 페이스</th>
-                    <th>평균 심박수</th>
-                    <th>훈련 유형</th>
-                    <th>운동 강도(RPE)</th>
+                    <th>심박수 (평균 / 최고)</th>
+                    <th>컨디션</th>
+                    <th>통증 상태</th>
                     <th>메모</th>
                     <th>관리</th>
                   </tr>
@@ -133,14 +133,27 @@ export default function RunsPage() {
                         <td onClick={() => openDetail(run.runRecordId)}>
                           {run.avgHr ? (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--danger)', fontWeight: '600' }}>
-                              <Heart size={14} fill="var(--danger)" /> {run.avgHr} bpm
+                              <Heart size={14} fill="var(--danger)" />
+                              {run.avgHr} {run.maxHr ? <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>/ {run.maxHr}</span> : ''} bpm
                             </span>
                           ) : (
                             '-'
                           )}
                         </td>
-                        <td onClick={() => openDetail(run.runRecordId)}><span className="badge-training">{translateTrainingType(run.trainingTypeCode)}</span></td>
-                        <td onClick={() => openDetail(run.runRecordId)}>{getRpeLabel(run.rpe)}</td>
+                        <td onClick={() => openDetail(run.runRecordId)}>
+                          <span className={`badge-condition condition-${run.conditionScore || 2}`}>
+                            {translateCondition(run.conditionScore)}
+                          </span>
+                        </td>
+                        <td onClick={() => openDetail(run.runRecordId)}>
+                          {run.painAreaCode && run.painAreaCode !== 'NONE' ? (
+                            <span style={{ color: run.painLevel >= 2 ? 'var(--danger)' : '#f59e0b', fontWeight: '600' }}>
+                              {translatePainArea(run.painAreaCode)} ({translatePainLevel(run.painLevel)})
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--success)' }}>정상 (통증 없음)</span>
+                          )}
+                        </td>
                         <td onClick={() => openDetail(run.runRecordId)}>{run.memo || '-'}</td>
                         <td>
                           <div style={{ display: 'flex', gap: '8px' }}>

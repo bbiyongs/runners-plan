@@ -1,13 +1,13 @@
 import React from "react";
 import { HeartPulse, BarChart2 } from "lucide-react";
-import Sidebar from "../components/layout/Sidebar";
-import ErrorState from "../components/common/ErrorState";
-import CareTabContent from "../components/stats/CareTabContent";
-import ReportTabContent from "../components/stats/ReportTabContent";
+import Sidebar from "@/components/layout/Sidebar";
+import ErrorState from "@/components/common/ErrorState";
+import CareTabContent from "@/components/stats/CareTabContent";
+import ReportTabContent from "@/components/stats/ReportTabContent";
 
-import '../styles/Dashboard.css';
+import '@/styles/Dashboard.css';
 
-import { useStats } from "../hooks/useStats";
+import { useStats } from "@/hooks/useStats";
 
 export default function StatsPage() {
 

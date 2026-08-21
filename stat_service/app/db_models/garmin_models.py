@@ -1,4 +1,7 @@
-from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, Numeric, Integer, ForeignKey, JSON
+# Line 1-2
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, Numeric, Integer, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
+
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -30,7 +33,7 @@ class GarminRunDetail(Base):
     training_effect_aerobic = Column(Numeric(3, 1))
     training_effect_anaerobic = Column(Numeric(3, 1))
     calories = Column(Integer)
-    gpx_route_json = Column(JSON)
+    gpx_route_json = Column(JSONB)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, onupdate=func.now())
 class GarminRunLap(Base):

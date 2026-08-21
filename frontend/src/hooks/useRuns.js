@@ -85,16 +85,28 @@ export function useRuns() {
             return false;
         }
 
+        const avgHrVal = formData.avgHr ? parseInt(formData.avgHr, 10) : null;
+        const maxHrVal = formData.maxHr ? parseInt(formData.maxHr, 10) : null;
+        // DB 제약조건 사전 검증
+        if (avgHrVal && maxHrVal && maxHrVal < avgHrVal) {
+            alert('최대 심박수는 평균 심박수보다 크거나 같아야 합니다.');
+            return false;
+        }
+
         const requestPayload = {
             runDatetime,
+            runDate: formData.runDate,
             distanceKm: parseFloat(formData.distanceKm),
             durationSec: totalSec,
-            avgHr: formData.avgHr ? parseInt(formData.avgHr, 10) : null,
-            trainingTypeCode: formData.trainingTypeCode,
-            rpe: parseInt(formData.rpe, 10),
+            avgHr: avgHrVal,
+            maxHr: maxHrVal,
+            conditionScore: parseInt(formData.conditionScore, 10) || 2,
+            painAreaCode: formData.painAreaCode || 'NONE',
+            painLevel: parseInt(formData.painLevel, 10) || 0,
             temperature: formData.temperature !== '' ? parseFloat(formData.temperature) : null,
             humidity: formData.humidity !== '' ? parseInt(formData.humidity, 10) : null,
             weatherCode: formData.weatherCode || 'SUNNY',
+            shoeId: formData.shoeId ? parseInt(formData.shoeId, 10) : null,
             memo: formData.memo,
         };
 
@@ -110,19 +122,30 @@ export function useRuns() {
         try {
             const runDatetime = `${formData.runDate}T${formData.runTime}:00`;
             const totalSec = (parseInt(formData.hours || '0', 10) * 3600) + (parseInt(formData.minutes || '0', 10) * 60) + parseInt(formData.seconds || '0', 10);
+            
+            const avgHrVal = formData.avgHr ? parseInt(formData.avgHr, 10) : null;
+            const maxHrVal = formData.maxHr ? parseInt(formData.maxHr, 10) : null;
+            if (avgHrVal && maxHrVal && maxHrVal < avgHrVal) {
+                alert('최대 심박수는 평균 심박수보다 크거나 같아야 합니다.');
+                return;
+            }
 
             const requestPayload = {
                 runDatetime,
+                runDate: formData.runDate,
                 distanceKm: parseFloat(formData.distanceKm),
                 durationSec: totalSec,
-                avgHr: formData.avgHr ? parseInt(formData.avgHr, 10) : null,
-                trainingTypeCode: formData.trainingTypeCode,
-                rpe: parseInt(formData.rpe, 10),
+                avgHr: avgHrVal,
+                maxHr: maxHrVal,
+                conditionScore: parseInt(formData.conditionScore, 10) || 2,
+                painAreaCode: formData.painAreaCode || 'NONE',
+                painLevel: parseInt(formData.painLevel, 10) || 0,
                 temperature: formData.temperature !== '' ? parseFloat(formData.temperature) : null,
                 humidity: formData.humidity !== '' ? parseInt(formData.humidity, 10) : null,
                 weatherCode: formData.weatherCode || 'SUNNY',
+                shoeId: formData.shoeId ? parseInt(formData.shoeId, 10) : null,
                 memo: formData.memo,
-            }
+            };
 
             await runApi.updateRunRecord(id, requestPayload);
             alert('러닝 기록이 성공적으로 수정되었습니다. ');

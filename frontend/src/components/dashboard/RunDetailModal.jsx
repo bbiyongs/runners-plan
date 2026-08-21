@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { weatherApi } from "../../api/weatherApi";
-import { TRAINING_TYPE_MAP, WEATHER_MAP } from "../../constants/runningConstants";
+import { weatherApi } from "@/api/weatherApi";
 import RunForm from "./RunForm";
-import { useRunForm } from "../../hooks/useRunForm";
+import { useRunForm } from "@/hooks/useRunForm";
 
 export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate }) {
 
-    const { formData, weatherLoading, handleChange } = useRunForm({
+    const { formData, shoes, weatherLoading, handleChange } = useRunForm({
         runDate: '',
         runTime: '07:00',
         location: '서울/수도권 북부',
@@ -15,11 +14,14 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
         minutes: '0',
         seconds: '0',
         avgHr: '',
-        trainingTypeCode: 'EASY',
-        rpe: '3',
+        maxHr: '',
+        conditionScore: 2,
+        painAreaCode: 'NONE',
+        painLevel: 0,
         temperature: '',
         humidity: '',
         weatherCode: 'SUNNY',
+        shoeId: '',
         memo: '',
     }, isOpen, runRecord);
 
@@ -39,6 +41,7 @@ export default function RunDetailModal({ isOpen, onClose, runRecord, onUpdate })
                 </div>
                     <RunForm
                         formData={formData}
+                        shoes={shoes}
                         onChange={handleChange}
                         onSubmit={handleSubmit}
                         onCancel={onClose}

@@ -1,0 +1,471 @@
+/* src/styles/ShoesPage.css */
+
+.shoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.add-shoe-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  transition: all 0.2s ease;
+}
+
+.add-shoe-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* 카드 그리드 */
+.shoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+/* 러닝화 개별 카드 */
+.shoe-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shoe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.shoe-card.is-default-card {
+  border-color: #86efac;
+  background: linear-gradient(180deg, #f8fdf9 0%, #ffffff 100%);
+}
+
+.shoe-card.is-retired-card {
+  opacity: 0.65;
+  background-color: #f8fafc;
+}
+
+/* 카드 헤더 및 배지 */
+.shoe-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.shoe-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-default-shoe {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #166534;
+}
+
+.badge-shoe-status {
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.badge-retired {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 모델명 및 메타 정보 */
+.shoe-info-section {
+  margin-bottom: 18px;
+}
+
+.shoe-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.shoe-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+/* 프로그레스 바 */
+.shoe-progress-section {
+  margin-bottom: 16px;
+}
+
+.shoe-progress-track {
+  width: 100%;
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.shoe-progress-bar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+.shoe-distance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.95rem;
+}
+
+.shoe-distance-info .current-max {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.shoe-distance-info .remaining {
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+/* 수명 경고 배너 */
+.shoe-warning-banner {
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #b45309;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+/* 카드 하단 액션 버튼 */
+.shoe-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-shoe-default,
+.btn-shoe-edit,
+.btn-shoe-retire {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  text-align: center;
+}
+
+.btn-shoe-default:hover {
+  background-color: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.btn-shoe-edit:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-shoe-retire {
+  color: #ef4444;
+}
+
+.btn-shoe-retire:hover {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ========================================================================= */
+/* 러닝화 등록 / 수정 모달 스타일                                            */
+/* ========================================================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(23, 46, 35, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(23, 46, 35, 0.25);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.close-btn:hover {
+  color: #0f172a;
+}
+
+.shoe-modal-card {
+  max-width: 540px;
+  padding: 28px;
+}
+
+.shoe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shoe-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.shoe-form-row .flex-1 {
+  flex: 1;
+}
+
+.shoe-form-row .flex-2 {
+  flex: 2;
+}
+
+.shoe-form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.shoe-form-label .label-sub {
+  font-size: 0.78rem;
+  font-weight: normal;
+  color: #64748b;
+}
+
+.shoe-form-input,
+.shoe-form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  background-color: #ffffff;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.shoe-form-input:focus,
+.shoe-form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/* 과거 누적 거리 자동 계산 박스 */
+.shoe-preview-box {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.preview-box-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #166534;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.preview-box-desc {
+  font-size: 0.82rem;
+  color: #374151;
+  line-height: 1.45;
+  margin: 0 0 12px 0;
+}
+
+.ratio-btn-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 6px;
+}
+
+.ratio-btn {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ratio-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.ratio-btn.active {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+  font-weight: 700;
+}
+
+/* 체크박스 그룹 */
+.form-checkbox-group {
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* 모달 하단 버튼 */
+.shoe-form-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-shoe-cancel {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-shoe-cancel:hover {
+  background-color: #f8fafc;
+}
+
+.btn-shoe-submit {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-shoe-submit:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-shoe-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 빈 상태 */
+.shoes-empty-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
+  padding: 60px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.shoes-empty-card p {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}

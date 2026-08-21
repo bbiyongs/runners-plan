@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class RunRecordResponse {
     private Long runRecordId;
     private Long runnerId;
+    private Long shoeId;
     private LocalDateTime runDatetime;
     private LocalDate runDate;
     private Integer durationSec;
@@ -22,8 +23,10 @@ public class RunRecordResponse {
     private Integer avgPaceSec; // 계산된 페이스
     private String formattedPace; // 알기쉬운 페이스문자열
     private Integer avgHr;
-    private String trainingTypeCode;
-    private Integer rpe;
+    private Integer maxHr;
+    private Integer conditionScore;
+    private String painAreaCode;
+    private Integer painLevel;
     private BigDecimal temperature;
     private Integer humidity;
     private String weatherCode;
@@ -34,6 +37,7 @@ public class RunRecordResponse {
         return RunRecordResponse.builder()
                 .runRecordId(record.getRunRecordId())
                 .runnerId(record.getRunnerId())
+                .shoeId(record.getShoeId())
                 .runDatetime(record.getRunDatetime())
                 .runDate(record.getRunDate())
                 .durationSec(record.getDurationSec())
@@ -41,8 +45,10 @@ public class RunRecordResponse {
                 .avgPaceSec(record.getAvgPaceSec())
                 .formattedPace(formatPace(record.getAvgPaceSec()))
                 .avgHr(record.getAvgHr())
-                .trainingTypeCode(record.getTrainingTypeCode())
-                .rpe(record.getRpe())
+                .maxHr(record.getMaxHr())
+                .conditionScore(record.getConditionScore())
+                .painAreaCode(record.getPainAreaCode())
+                .painLevel(record.getPainLevel())
                 .temperature(record.getTemperature())
                 .humidity(record.getHumidity())
                 .weatherCode(record.getWeatherCode())

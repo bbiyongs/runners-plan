@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(23, 46, 35, 0.75);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -14,7 +14,7 @@
 }
 
 .garmin-modal-content {
-  background: #1e293b;
+  background: #1a2f24;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   width: 100%;

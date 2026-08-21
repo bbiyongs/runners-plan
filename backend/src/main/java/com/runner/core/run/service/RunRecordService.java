@@ -4,6 +4,7 @@ import com.runner.core.run.domain.RunRecord;
 import com.runner.core.run.dto.request.RunRecordCreateRequest;
 import com.runner.core.run.dto.response.RunRecordResponse;
 import com.runner.core.run.mapper.RunRecordMapper;
+import com.runner.core.shoe.service.RunningShoesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class RunRecordService {
     private final RunRecordMapper runRecordMapper;
 
+    private final RunningShoesService shoesService;
+
     // 신규 러닝기록 등록
     @Transactional
     public RunRecordResponse createRunRecord(Long runnerId, RunRecordCreateRequest request) {
@@ -28,14 +31,17 @@ public class RunRecordService {
 
         RunRecord record = RunRecord.builder()
                 .runnerId(runnerId)
+                .shoeId(request.getShoeId())
                 .runDatetime(request.getRunDatetime())
                 .runDate(request.getRunDatetime().toLocalDate())
                 .durationSec(request.getDurationSec())
                 .distanceKm(request.getDistanceKm())
                 .avgPaceSec(avgPaceSec)
                 .avgHr(request.getAvgHr())
-                .trainingTypeCode(request.getTrainingTypeCode())
-                .rpe(request.getRpe())
+                .maxHr(request.getMaxHr())
+                .conditionScore(request.getConditionScore() != null ? request.getConditionScore() : 2)
+                .painAreaCode(request.getPainAreaCode() != null ? request.getPainAreaCode() : "NONE")
+                .painLevel(request.getPainLevel() != null ? request.getPainLevel() : 0)
                 .temperature(request.getTemperature())
                 .humidity(request.getHumidity())
                 .weatherCode(request.getWeatherCode())
@@ -44,6 +50,11 @@ public class RunRecordService {
 
         runRecordMapper.insertRunRecord(record);
         log.info("러닝 기록 등록 완료 : runRecordId {} , runnerId {}", record.getRunRecordId(), runnerId);
+
+        // 러닝화 누적 거리 가산 (+)
+        if (request.getShoeId() != null) {
+            shoesService.updateShoeDistance(request.getShoeId(), request.getDistanceKm());
+        }
 
         return RunRecordResponse.from(record);
     }
@@ -80,15 +91,31 @@ public class RunRecordService {
         existingRecord.setDistanceKm(request.getDistanceKm());
         existingRecord.setAvgPaceSec(avgPaceSec);
         existingRecord.setAvgHr(request.getAvgHr());
-        existingRecord.setTrainingTypeCode(request.getTrainingTypeCode());
-        existingRecord.setRpe(request.getRpe());
+        existingRecord.setMaxHr(request.getMaxHr());
+        existingRecord.setConditionScore(request.getConditionScore());
+        existingRecord.setPainAreaCode(request.getPainAreaCode());
+        existingRecord.setPainLevel(request.getPainLevel());
         existingRecord.setTemperature(request.getTemperature());
         existingRecord.setHumidity(request.getHumidity());
         existingRecord.setWeatherCode(request.getWeatherCode());
         existingRecord.setMemo(request.getMemo());
 
+        // 기존 신발 및 기존 거리 보관
+        Long oldShoeId = existingRecord.getShoeId();
+        BigDecimal oldDistance = existingRecord.getDistanceKm();
+
+        existingRecord.setShoeId(request.getShoeId());
+
         runRecordMapper.updateRunRecord(existingRecord);
         log.info("러닝 기록 수정 : runRecordId {}  runnerId", runRecordId, runnerId);
+
+        // 신발 누적거리 차감(-) 및 재가산(+) 동기화
+        if (oldShoeId != null) {
+            shoesService.updateShoeDistance(oldShoeId, oldDistance.negate()); // 이전 거리 차감
+        }
+        if (request.getShoeId() != null) {
+            shoesService.updateShoeDistance(request.getShoeId(), request.getDistanceKm()); // 새 거리 가산
+        }
 
         return RunRecordResponse.from(existingRecord);
 
@@ -96,10 +123,17 @@ public class RunRecordService {
 
     @Transactional
     public void deleteRunRecord(Long runnerId, Long runRecordId) {
+        RunRecord record = runRecordMapper.findByIdAndRunnerId(runRecordId, runnerId)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 러닝 기록이 없습니다. ID: " + runRecordId));
         int deleteRows = runRecordMapper.deleteByIdAndRunnerId(runRecordId, runnerId);
-        if(deleteRows == 0) {
+        if (deleteRows == 0) {
             throw new IllegalArgumentException("삭제할 러닝 기록이 없습니다. ID: " + runRecordId);
         }
+        // 삭제된 기록에 러닝화가 연결되어 있었다면 해당 거리만큼 차감(-)
+        if (record.getShoeId() != null && record.getDistanceKm() != null) {
+            shoesService.updateShoeDistance(record.getShoeId(), record.getDistanceKm().negate());
+        }
+
         log.info("러닝 기록 삭제 완료 : recordId {}  runnerId {}", runRecordId, runnerId);
     }
 

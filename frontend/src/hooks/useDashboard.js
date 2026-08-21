@@ -14,9 +14,11 @@ export function useDashboard() {
 
             const data = await dashboardApi.getMyDashboard();
             if (!data) {
-                alert('사용자 정보를 찾을수 없습니다.');
-                localStorage.removeItem('accessToken');
-                window.location.href = '/';
+                // alert('사용자 정보를 찾을수 없습니다.');
+                // localStorage.removeItem('accessToken');
+                // window.location.href = '/';
+                // return;
+                setError('사용자 정보를 불러올 수 없습니다. 다시 로그인해 주세요.');
                 return;
             }
             setDashboardData(data);

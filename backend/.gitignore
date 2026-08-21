@@ -36,3 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/java/com/runner/core/domain/CodeDetail.java
+
+### Secret configs (절대 Git에 올리면 안 되는 파일) ###
+src/main/resources/application-secret.yml
+.env

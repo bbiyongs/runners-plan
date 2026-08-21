@@ -2,6 +2,7 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--bg-primary);
 }
 
 /* Sidebar */
@@ -11,6 +12,7 @@
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-logo {
@@ -21,9 +23,30 @@
   padding-left: 8px;
 }
 
+.sidebar-turtle-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.sidebar-logo-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebar-logo-text {
   color: #ffffff;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sidebar-logo-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #74c69d;
+  letter-spacing: 1px;
 }
 
 .sidebar-nav {
@@ -34,12 +57,17 @@
 }
 
 .sidebar-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
   padding: 12px 16px;
   border-radius: var(--border-radius-md);
   color: var(--sidebar-text);
   cursor: pointer;
   font-size: 15px;
-  transition: all 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .sidebar-item:hover {
@@ -50,6 +78,8 @@
 .sidebar-item.active {
   background-color: var(--primary);
   color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
 }
 
 .logout-button {
@@ -58,17 +88,18 @@
   gap: 8px;
   padding: 12px 16px;
   background-color: transparent;
-  border: 1px solid #334155;
+  border: 1px solid #2d4f3e;
   color: var(--sidebar-text);
   border-radius: var(--border-radius-md);
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .logout-button:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger);
-  border-color: var(--danger);
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: #ef4444;
 }
 
 /* Main Content */
@@ -84,8 +115,10 @@
 
 .dashboard-title {
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--text-primary);
   margin-bottom: 6px;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-subtitle {
@@ -104,6 +137,13 @@
   padding: 24px;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -5px rgba(23, 46, 35, 0.07);
 }
 
 .stat-card-header {
@@ -112,11 +152,12 @@
   align-items: center;
   color: var(--text-secondary);
   font-size: 14px;
+  font-weight: 600;
 }
 
 .stat-card-value {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   margin: 12px 0 4px 0;
   color: var(--text-primary);
 }
@@ -137,16 +178,16 @@
 /* 개별 위젯 카드 */
 .dashboard-widget-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--card-shadow);
 }
 
 .widget-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin: 0 0 1rem 0;
 }
 
@@ -161,10 +202,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: #f8fafc;
-  border-radius: 10px;
-  border: 1px solid #f1f5f9;
+  padding: 0.85rem 1.1rem;
+  background: #f8faf8;
+  border-radius: 12px;
+  border: 1px solid #e7eee9;
+  transition: background-color 0.15s ease;
+}
+
+.activity-feed-item:hover {
+  background: #f0f7f2;
 }
 
 .feed-item-left {
@@ -175,13 +221,13 @@
 
 .feed-date {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .feed-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .feed-item-right {
@@ -193,19 +239,20 @@
 
 .feed-distance {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .feed-pace {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .feed-badge {
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
-  background: #ede9fe;
-  color: #6366f1;
+  padding: 0.25rem 0.55rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
   border-radius: 6px;
 }
 
@@ -234,7 +281,7 @@
   background: #ffffff;
   padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
 }
 
 .month-picker-input {
@@ -242,7 +289,7 @@
   outline: none;
   font-size: 0.95rem;
   font-weight: bold;
-  color: #1e293b;
+  color: var(--text-primary);
   cursor: pointer;
 }
 
@@ -256,7 +303,7 @@
 .tab-btn-group {
   display: flex;
   gap: 8px;
-  background: #f1f5f9;
+  background: #eaf1ed;
   padding: 4px;
   border-radius: 10px;
 }
@@ -272,14 +319,14 @@
   font-size: 0.9rem;
   cursor: pointer;
   background: transparent;
-  color: #64748b;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
 }
 
 .tab-btn.active {
   background: #ffffff;
-  color: #6366f1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(23, 46, 35, 0.1);
 }
 
 /* 여백 상단 유틸리티 */
@@ -304,7 +351,7 @@
 .run-form-label {
   font-size: 0.82rem;
   font-weight: bold;
-  color: #475569;
+  color: var(--text-secondary);
   display: block;
   margin-bottom: 4px;
 }
@@ -313,18 +360,21 @@
 .run-form-select,
 .run-form-textarea {
   width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
   margin-top: 4px;
   font-size: 0.9rem;
   outline: none;
+  background: #ffffff;
+  color: var(--text-primary);
 }
 
 .run-form-input:focus,
 .run-form-select:focus,
 .run-form-textarea:focus {
-  border-color: #6366f1;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
 }
 
 .duration-inputs {
@@ -337,7 +387,7 @@
   width: 65px;
   padding: 8px;
   border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-color);
 }
 
 .run-form-actions {
@@ -349,10 +399,11 @@
 
 .btn-form-cancel {
   padding: 10px 18px;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background: #eef4f0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-weight: bold;
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
@@ -363,12 +414,108 @@
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .btn-form-submit.create {
-  background: #6366f1;
+  background: var(--primary);
+}
+
+.btn-form-submit.create:hover {
+  background: var(--primary-hover);
 }
 
 .btn-form-submit.edit {
-  background: #3b82f6;
+  background: #2b7a78;
+}
+
+/* ==========================================
+   반응형 레이아웃 (모바일/태블릿)
+   ========================================== */
+
+/* 태블릿 이하 (768px) */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 12px 16px;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .sidebar-logo {
+    margin-bottom: 0;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex: 1;
+    gap: 4px;
+    overflow-x: auto;
+  }
+
+  .sidebar-item {
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .logout-button {
+    flex-shrink: 0;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-grid-3col {
+    grid-template-columns: 1fr;
+  }
+
+  .run-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .header-with-tabs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+/* 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .stat-card-value {
+    font-size: 22px;
+  }
+
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+  }
 }

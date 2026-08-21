@@ -1,28 +1,21 @@
 import React, {useEffect} from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 export default function OAuth2CallbackPage() {
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { silentRefresh } = useAuth();
 
     useEffect(() => {
-        // URL 파라미터에서 백엔드가 전달한 JWT 토큰 추출
-        const accessToken = searchParams.get('accessToken');
-        const refreshToken = searchParams.get('refreshToken');
-
-        if(accessToken) {
-            //토큰을 브라우저 local-storage 에 보관
-            localStorage.setItem('accessToken', accessToken);
-            if(refreshToken) {
-                localStorage.setItem('refreshToken', refreshToken);
+        silentRefresh().then((token) => {
+            if(token) {
+                navigate('/dashboard', {replace:true});
+            } else {
+                alert('로그인 세션을 확인할 수 없습니다. 다시 로그인 해주세요.');
+                navigate('/', {replace:true});
             }
-            alert("로그인에 성공하였습니다.");
-            navigate('/dashboard'); // 로그인 후 대시보드 이동
-        } else {
-            alert('로그인 처리중 오류발생');
-            navigate('/');
-        }
-    }, [searchParams, navigate]);
+        });
+    }, [silentRefresh, navigate]);
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

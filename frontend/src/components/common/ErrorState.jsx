@@ -30,7 +30,7 @@ export default function ErrorState({
                             onClick={onRetry}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '10px 18px', background: '#6366f1', color: '#ffffff',
+                                padding: '10px 18px', background: '#2e7d32', color: '#ffffff',
                                 border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.88rem',
                                 cursor: 'pointer'
                             }}

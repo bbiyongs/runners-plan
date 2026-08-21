@@ -1,13 +1,14 @@
 // src/components/dashboard/RunCreateModal.jsx
 import React, { useEffect, useState } from 'react';
-import { weatherApi } from '../../api/weatherApi';
+import { weatherApi } from '@/api/weatherApi';
 import RunForm from './RunForm';
-import { useRunForm } from '../../hooks/useRunForm';
+import { useRunForm } from '@/hooks/useRunForm';
 
 export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
-    const { formData, weatherLoading, handleChange } = useRunForm({
+    const { formData, shoes, weatherLoading, handleChange } = useRunForm({
         runDate: todayStr,
         runTime: '07:00',
         location: '서울/수도권 북부',
@@ -16,11 +17,14 @@ export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
         minutes: '30',
         seconds: '0',
         avgHr: '',
-        trainingTypeCode: 'EASY',
-        rpe: '3',
+        maxHr: '',
+        conditionScore: 2,
+        painAreaCode: 'NONE',
+        painLevel: 0,
         temperature: '',
         humidity: '',
         weatherCode: 'SUNNY',
+        shoeId: '',
         memo: '',
     }, isOpen);
 
@@ -41,6 +45,7 @@ export default function RunCreateModal({ isOpen, onClose, onSubmit }) {
 
                 <RunForm
                     formData={formData}
+                    shoes={shoes}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onCancel={onClose}

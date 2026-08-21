@@ -1,23 +1,29 @@
 /* src/index.css */
 :root {
-  --bg-primary: #f8fafc;
+  /* 배경 색상 (연한 녹색 & 자연스러운 소프트 베이스) */
+  --bg-primary: #f3f7f4;
   --bg-secondary: #ffffff;
-  --bg-sidebar: #0f172a;
-  --bg-sidebar-hover: #1e293b;
-  --sidebar-text: #94a3b8;
+  --bg-sidebar: #172e23;
+  --bg-sidebar-hover: #224233;
+  --sidebar-text: #a3c2b1;
   --sidebar-text-active: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
+  --text-primary: #192e24;
+  --text-secondary: #4a6356;
+  --text-muted: #8aa395;
+
+  /* 브랜드 메인 & 상태 컬러 */
+  --primary: #2e7d32;
+  --primary-hover: #246642;
+  --primary-light: #e8f5e9;
+  --primary-border: #c8e6c9;
+  --accent-green: #38a169;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  
-  --border-color: #e2e8f0;
-  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+
+  /* 테두리 & 카드 그림자 */
+  --border-color: #dbe7df;
+  --card-shadow: 0 10px 15px -3px rgba(23, 46, 35, 0.04), 0 4px 6px -4px rgba(23, 46, 35, 0.03);
   --border-radius-lg: 16px;
   --border-radius-md: 12px;
 }
@@ -33,4 +39,15 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+
+  /* 호환성 토큰 */
+  --color-white: #ffffff;
+  --color-indigo: #2e7d32;
+  --color-indigo-dark: #246642;
+  --color-slate-50: #f3f7f4;
+  --color-slate-100: #e9f2ec;
+  --color-slate-200: #dbe7df;
+  --color-slate-600: #4a6356;
+  --color-slate-800: #224233;
+  --color-slate-900: #172e23;
 }

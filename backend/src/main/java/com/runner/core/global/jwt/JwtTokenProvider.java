@@ -63,6 +63,17 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
+    // 토크에서 nickname 추출
+    public String getNicknameFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("nickname", String.class);
+    }
+
     // 토큰 유효성 및 만료 위변조 검증
     public boolean validateToken(String token) {
         try {

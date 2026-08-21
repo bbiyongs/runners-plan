@@ -75,19 +75,8 @@ class GarminSyncService:
                 self.db.delete(existing_manual)
                 self.db.flush()
 
-
-        # 1. 훈련 유형 자동 분류 (DTO 사용)
-        aerobic_eff = run_dto.aerobic_effect or 0.0
-        anaerobic_eff = run_dto.anaerobic_effect or 0.0
-        training_code = "EASY"
-        if anaerobic_eff >= 2.5:
-            training_code = "INTERVAL"
-        elif run_dto.distance_km >= 15.0:
-            training_code = "LSD"
-        elif aerobic_eff >= 4.0:
-            training_code = "TEMPO"
-        elif aerobic_eff < 2.0 and aerobic_eff > 0:
-            training_code = "RECOVERY"
+        # 1. 가민 자동 수집 시 기본 컨디션 및 통증 초기화 (슬로우 러닝 & 부상 방지 스펙)
+        default_condition = 2  # 보통
 
         # 2. 날씨 데이터 완성 (WeatherFetcher 맵 활용)
         final_temp = run_dto.temperature
@@ -102,7 +91,20 @@ class GarminSyncService:
                 if final_hum is None: final_hum = o_hum
                 if final_weather_code is None: final_weather_code = o_weather_code
 
-        # 3. RunRecord 저장
+        # 3. 심박수 유효성 검증 및 DB Check 제약 조건 방어 (30~250 BPM & max_hr >= avg_hr)
+        final_avg_hr = int(round(run_dto.average_hr)) if run_dto.average_hr is not None else None
+        final_max_hr = int(round(run_dto.max_hr)) if run_dto.max_hr is not None else None
+
+        if final_avg_hr is not None and not (30 <= final_avg_hr <= 250):
+            final_avg_hr = None
+
+        if final_max_hr is not None:
+            if not (30 <= final_max_hr <= 250):
+                final_max_hr = None
+            elif final_avg_hr is not None and final_max_hr < final_avg_hr:
+                final_max_hr = final_avg_hr  # max_hr은 avg_hr보다 작을 수 없도록 보정
+
+        # 4. RunRecord 저장 (max_hr 포함)
         new_record = RunRecord(
             runner_id=runner_id,
             run_datetime=run_dt,
@@ -110,9 +112,11 @@ class GarminSyncService:
             duration_sec=run_dto.duration_seconds,
             distance_km=run_dto.distance_km,
             avg_pace_sec=run_dto.average_pace_sec,
-            avg_hr=run_dto.average_hr,
-            training_type_code=training_code,
-            rpe=run_dto.rpe,
+            avg_hr=final_avg_hr,
+            max_hr=final_max_hr,
+            condition_score=default_condition,
+            pain_area_code="NONE",
+            pain_level=0,
             temperature=final_temp,
             humidity=final_hum,
             weather_code=final_weather_code or "SUNNY",
@@ -121,11 +125,13 @@ class GarminSyncService:
         self.db.add(new_record)
         self.db.flush()
 
-        # Garmin_run_detail 저장
+        # Garmin_run_detail 저장 (유산소/무산소 훈련 효과 지표 포함)
         detail = GarminRunDetail(
             run_record_id=new_record.run_record_id,
             garmin_activity_id=run_dto.activity_id,
             max_hr=run_dto.max_hr,
+            training_effect_aerobic=run_dto.aerobic_effect,
+            training_effect_anaerobic=run_dto.anaerobic_effect,
             calories=run_dto.calories
         )
         self.db.add(detail)
@@ -204,9 +210,13 @@ class GarminSyncService:
 
         saved_count = 0
         for dto in running_dtos:
-            res = self.save_running_activity(runner_id, dto, weather_map=weather_map)
-            if res : 
-                saved_count += 1
+            try:
+                res = self.save_running_activity(runner_id, dto, weather_map=weather_map)
+                if res : 
+                    saved_count += 1
+            except Exception as item_err :
+                logger.warning(f"최근 활동 ID {dto.activity_id} 저장 중 스킵: {item_err}")
+                self.db.rollback()  # 롤백 후 다음 활동 계속 처리
 
 
         link.last_synced_at = datetime.now()

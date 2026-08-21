@@ -41,7 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.debug("Security Context에 runnerId={} 인증 정보 저장 완료", runnerId);
 
             // 활동시 30분 연장된 새 토큰 생성 및 응답
-            String refreshedToken = jwtTokenProvider.createAccessToken(runnerId, "runner");
+            String nickname = jwtTokenProvider.getNicknameFromToken(token);
+            String refreshedToken = jwtTokenProvider.createAccessToken(runnerId, nickname!=null?nickname:"runner");
             response.setHeader("Authorization", "Bearer " + refreshedToken);
         }
 
@@ -57,5 +58,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

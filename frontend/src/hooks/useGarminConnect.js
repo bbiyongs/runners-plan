@@ -63,7 +63,7 @@ export function useGarminConnect (isOpen, runnerId, onSyncSuccess) {
         setSuccessMessage('');
 
         try {
-            const res = await garminApi.connectAccount(runnerId, email, password);
+            const res = await garminApi.connectAccount(email, password);
             setSuccessMessage(res.message || 'garmin 연동 성공');
             setPassword('');
             await fetchGarminStatus();

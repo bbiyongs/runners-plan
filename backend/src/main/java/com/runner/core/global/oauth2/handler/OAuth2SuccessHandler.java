@@ -1,5 +1,7 @@
 package com.runner.core.global.oauth2.handler;
 
+import com.runner.core.auth.domain.RunnerRefreshToken;
+import com.runner.core.auth.mapper.RefreshTokenMapper;
 import com.runner.core.global.jwt.JwtTokenProvider;
 import com.runner.core.runner.domain.Runner;
 import com.runner.core.runner.domain.RunnerSocialAccount;
@@ -15,9 +17,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +28,7 @@ import java.util.Optional;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
     private final RunnerMapper runnerMapper;
+    private final RefreshTokenMapper refreshTokenMapper;
 
     @Value("${app.oauth2.redirect-uri}")
     private String redirectUri;
@@ -64,15 +65,34 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtTokenProvider.createAccessToken(runnerId, runner.getNickname());
         String refreshToken = jwtTokenProvider.createRefreshToken(runnerId);
 
+        // DB 에 refresh Token 저장 / 갱신
+        refreshTokenMapper.upsertRefreshToken(RunnerRefreshToken.builder()
+                        .runnerId(runnerId)
+                        .refreshToken(refreshToken)
+                        .build());
+
         log.info("JWT 토근 발급 완료 runnerId:{}  accessToken:{}", runnerId, accessToken);
+        log.info("JWT 토근 발급 완료 refreshToken : {}", refreshToken);
 
         // 나중에 리다이렉트 될 URL 생성
-        String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
+        /*String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .build().toUriString();
         // 프론트엔트로 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);*/
+        org.springframework.http.ResponseCookie cookie =
+                org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                        .httpOnly(true)
+                        .secure(false) // https 운영 환경에서 true 로 변경
+                        .path("/")
+                        .maxAge(7*24*60*60) // 7일
+                        .sameSite("Lax")
+                        .build();
+
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
+        // url 에 토큰 노출하지 않고 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 
     private String extractProviderUserId (String provider, Map<String, Object> attributes) {

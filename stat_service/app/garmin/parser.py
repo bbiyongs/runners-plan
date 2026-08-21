@@ -155,8 +155,8 @@ class GarminDataParser:
             duration_seconds=duration_sec,
             average_pace_str=avg_pace_str,
             average_pace_sec=avg_pace_sec,
-            average_hr=raw.get("averageHR"),
-            max_hr=raw.get("maxHR"),
+            average_hr=int(round(raw.get("averageHR") or raw.get("averageHeartRate"))) if (raw.get("averageHR") or raw.get("averageHeartRate")) is not None else None,
+            max_hr=int(round(raw.get("maxHR") or raw.get("maxHeartRate"))) if (raw.get("maxHR") or raw.get("maxHeartRate")) is not None else None,
             calories=int(raw.get("calories", 0)),
             # 추가 파싱
             rpe=calculated_rpe,

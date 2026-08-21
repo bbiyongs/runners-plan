@@ -3,28 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { Activity, Flame, Calendar, Award, Timer } from 'lucide-react';
 // recharts 컴포넌트 추가 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import Sidebar from '../components/layout/Sidebar';
-import StatCard from '../components/dashboard/StatCard';
-import { dashboardApi } from '../api/dashboardApi';
-import '../styles/Dashboard.css';
-import ErrorState from '../components/common/ErrorState';
-import { translateTrainingType } from '../constants/runningConstants';
-import { useDashboard } from '../hooks/useDashboard';
+import Sidebar from '@/components/layout/Sidebar';
+import StatCard from '@/components/dashboard/StatCard';
+import { dashboardApi } from '@/api/dashboardApi';
+import '@/styles/Dashboard.css';
+import ErrorState from '@/components/common/ErrorState';
+import { translatePainArea, translateCondition } from '@/constants/runningConstants';
+import { useDashboard } from '@/hooks/useDashboard';
 
 export default function DashboardPage() {
 
-  const { dashboardData, loading, error, refetchDashboard} = useDashboard();
+  const { dashboardData, loading, error, refetchDashboard } = useDashboard();
 
   if (loading) return <div style={{ padding: '20px' }}>대시보드 정보를 불러오는 중...</div>;
-  
+
   if (error) {
-      return (
-          <ErrorState
-              title="대시보드 정보를 불러올 수 없습니다"
-              message={error}
-              onRetry={refetchDashboard}
-          />
-      );
+    return (
+      <ErrorState
+        title="대시보드 정보를 불러올 수 없습니다"
+        message={error}
+        onRetry={refetchDashboard}
+      />
+    );
   }
   return (
     <div className="dashboard-layout">
@@ -87,7 +87,9 @@ export default function DashboardPage() {
                         <div className="feed-item-right">
                           <span className="feed-distance">{act.distanceKm} km</span>
                           <span className="feed-pace">{act.formattedAvgPace || "--'--\""} /km</span>
-                          <span className="feed-badge">{translateTrainingType(act.trainingTypeCode)}</span>
+                          <span className={`feed-badge ${act.painAreaCode && act.painAreaCode !== 'NONE' ? 'badge-warning' : 'badge-normal'}`}>
+                            {act.painAreaCode && act.painAreaCode !== 'NONE' ? translatePainArea(act.painAreaCode) : translateCondition(act.conditionScore)}
+                          </span>
                         </div>
                       </div>
                     ))

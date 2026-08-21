@@ -64,7 +64,8 @@ class AnalyticsCalculator :
             "duration_sec":r.duration_sec,
             "distance_km": float(r.distance_km) if r.distance_km else 0.0,
             "avg_pace_sec":r.avg_pace_sec,
-            "avg_hr":r.avg_hr
+            "avg_hr":r.avg_hr,
+            "max_hr":r.max_hr
         } for r in runs ]
 
         df = pd.DataFrame(data)

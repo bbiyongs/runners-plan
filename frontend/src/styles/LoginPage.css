@@ -4,34 +4,103 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background: radial-gradient(circle at 50% 20%, #e6f4ea 0%, #f3f7f4 60%, #e3eee6 100%);
+  padding: 20px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  padding: 40px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--card-shadow);
+  max-width: 420px;
+  padding: 44px 36px 36px;
+  background-color: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px -15px rgba(23, 46, 35, 0.08), 0 0 1px 1px rgba(46, 125, 50, 0.08);
+  border: 1px solid var(--border-color);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.turtle-badge-wrapper {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 2px solid #a5d6a7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px -4px rgba(46, 125, 50, 0.2);
+}
+
+.turtle-emoji {
+  font-size: 38px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .login-title {
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1b382b;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.login-motto {
+  font-size: 13px;
   font-weight: 700;
-  margin-top: 12px;
-  color: var(--text-primary);
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
 }
 
 .login-subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* 슬로우 러너 핵심 배너 */
+.slow-runner-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  background: #f4f9f5;
+  border: 1px solid #d7e8dc;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 24px;
+}
+
+.banner-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.banner-icon {
+  color: #2e7d32;
+  flex-shrink: 0;
 }
 
 .social-login-group {
@@ -47,10 +116,10 @@
   justify-content: center;
   gap: 12px;
   width: 100%;
-  height: 56px;
+  height: 52px;
   padding: 0 16px;
   border-radius: var(--border-radius-md);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
   border: 1px solid var(--border-color);
   cursor: pointer;
@@ -60,49 +129,53 @@
 
 .google-btn {
   background-color: #ffffff;
-  color: #3c4043;
+  color: #374151;
+  border-color: #e5e7eb;
 }
 
 .google-btn:hover {
-  background-color: #f8f9fa;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.naver-btn {
-  background-color: #03c75a;
-  color: #ffffff;
-  border: none;
-}
-
-.naver-btn:hover {
-  background-color: #02b351;
-}
-
-.naver-icon {
-  font-weight: 900;
-  font-size: 16px;
-  font-family: sans-serif;
-}
-
-/* src/styles/LoginPage.css 수정 부분 */
 .naver-img-btn-wrapper {
   width: 100%;
-  height: 56px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
+
 .naver-img-btn-wrapper:hover {
-  opacity: 0.9;
+  opacity: 0.95;
 }
+
 .naver-img-btn-wrapper:active {
   transform: scale(0.99);
 }
+
 .naver-img-btn {
   width: 100%;
-  height: 100%; /* 구글 버튼 높이와 동일하게 맞춤 */
+  height: 100%;
   object-fit: contain;
   border-radius: var(--border-radius-md);
+}
+
+.login-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed #dbe7df;
+  text-align: center;
+}
+
+.login-footer span {
+  font-size: 12px;
+  color: #718d7d;
+  font-weight: 500;
 }

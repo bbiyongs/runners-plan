@@ -55,7 +55,9 @@ public class DashboardResponse {
         private Integer durationSec;
         private Integer avgPaceSec;
         private String formattedAvgPace;
-        private String trainingTypeCode;
+        private Integer conditionScore;
+        private String painAreaCode;
+        private Integer painLevel;
         private String memo;
     }
 

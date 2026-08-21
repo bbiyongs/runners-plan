@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.garmin.router import router as garmin_router
@@ -9,12 +10,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# 환경변수에서 CORS 허용 도메인을 읽어오고 없으면 localhost
+raw_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173")
+allowed_origins = [origin.strip() for origin in raw_origins.split(",")  if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=True,         # axiosInstance의 withCredentials:true 와 맞춰야 함
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Garmin 연동
